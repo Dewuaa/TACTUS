@@ -111,12 +111,30 @@ export default function ARRetroPlayer() {
       const targetEl = document.createElement("a-entity");
       targetEl.setAttribute("mindar-image-target", "targetIndex: 0");
 
-      // 3D model anchored to target
+      // Simple colored box as primary visual (lightweight, instant load)
+      const boxEl = document.createElement("a-box");
+      boxEl.setAttribute("position", "0 0.15 0");
+      boxEl.setAttribute("scale", "0.3 0.3 0.3");
+      boxEl.setAttribute("color", "#FF6B35");
+      boxEl.setAttribute("opacity", "0.9");
+      boxEl.setAttribute("animation", "property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear");
+      targetEl.appendChild(boxEl);
+
+      // Text label
+      const textEl = document.createElement("a-text");
+      textEl.setAttribute("value", "TACTUS");
+      textEl.setAttribute("color", "#FFFFFF");
+      textEl.setAttribute("align", "center");
+      textEl.setAttribute("position", "0 -0.15 0");
+      textEl.setAttribute("scale", "0.5 0.5 0.5");
+      targetEl.appendChild(textEl);
+
+      // Optional: also load the GLB model if available (loads async)
       const modelEl = document.createElement("a-gltf-model");
       modelEl.setAttribute("src", "/models/boombox.glb");
-      modelEl.setAttribute("position", "0 0 0");
+      modelEl.setAttribute("position", "0 0.4 0");
       modelEl.setAttribute("rotation", "0 0 0");
-      modelEl.setAttribute("scale", "0.15 0.15 0.15");
+      modelEl.setAttribute("scale", "0.1 0.1 0.1");
       targetEl.appendChild(modelEl);
 
       sceneEl.appendChild(targetEl);
@@ -125,16 +143,19 @@ export default function ARRetroPlayer() {
 
       // Listen for events
       targetEl.addEventListener("targetFound", () => {
+        console.log("🎯 Target FOUND!");
         setTargetFound(true);
         setARState("active");
       });
 
       targetEl.addEventListener("targetLost", () => {
+        console.log("❌ Target LOST");
         setTargetFound(false);
       });
 
       // Scene loaded
       sceneEl.addEventListener("arReady", () => {
+        console.log("✅ AR Ready!");
         setARState("active");
       });
 
