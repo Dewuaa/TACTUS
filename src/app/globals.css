@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+/* ===== TACTUS Global Design System ===== */
+
+@theme {
+  --color-tactus-black: #101010;
+  --color-tactus-dark: #0a0a0a;
+  --color-tactus-surface: #1a1a1a;
+  --color-tactus-border: rgba(255, 255, 255, 0.06);
+  --color-tactus-white: #f5f5f5;
+  --color-tactus-muted: rgba(255, 255, 255, 0.4);
+  --color-tactus-accent: #e0e0e0;
+  --font-display: "League Spartan", "Bebas Neue", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+/* ===== Base Resets ===== */
+
+html {
+  background: var(--color-tactus-dark);
+  color-scheme: dark;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-tactus-black);
+  color: var(--color-tactus-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mobile Viewport Fix */
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+/* ===== Custom Scrollbar ===== */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+/* ===== Spinner Animation ===== */
+
+@keyframes tactus-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.tactus-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  animation: tactus-spin 0.8s linear infinite;
+}
+
+/* ===== Pulse Glow Animation ===== */
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.05);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* ===== Text Shimmer ===== */
+
+@keyframes text-shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.6) 0%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(255, 255, 255, 0.6) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 3s ease-in-out infinite;
+}
+
+/* ===== AR Overlay Styles ===== */
+
+.ar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: auto;
+}
+
+.ar-controls {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  padding: 1.5rem;
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+}
+
+/* ===== A-Frame Scene Reset ===== */
+
+a-scene {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 40 !important;
+}
