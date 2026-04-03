@@ -213,13 +213,13 @@ export default function ARRetroPlayer() {
         }
       });
 
-      // Only watch childList — NOT attributes (prevents infinite loop)
-      observer.observe(sceneEl, { childList: true, subtree: true });
+      // MindAR can inject camera video/canvas as siblings of <a-scene>, so observe container.
+      observer.observe(sceneContainerRef.current!, { childList: true, subtree: true });
 
       // Periodic check for 10 seconds, then stop
       let checks = 0;
       const interval = setInterval(() => {
-        sceneEl.querySelectorAll("video, canvas").forEach((el) => {
+        sceneContainerRef.current?.querySelectorAll("video, canvas").forEach((el) => {
           forceFullscreen(el as HTMLElement);
         });
         checks++;
@@ -386,7 +386,7 @@ export default function ARRetroPlayer() {
       </AnimatePresence>
 
       {/* ===== AR SCENE CONTAINER ===== */}
-      <div ref={sceneContainerRef} className="fixed inset-0 z-40" />
+      <div ref={sceneContainerRef} className="ar-scene-container fixed inset-0 z-40" />
 
       {/* ===== AR CONTROLS OVERLAY ===== */}
       <AnimatePresence>
