@@ -100,6 +100,7 @@ export default function ARRetroPlayer() {
       sceneEl.setAttribute("renderer", "colorManagement: true; physicallyCorrectLights: true;");
       sceneEl.setAttribute("vr-mode-ui", "enabled: false");
       sceneEl.setAttribute("device-orientation-permission-ui", "enabled: false");
+      sceneEl.setAttribute("embedded", "");
 
       // Camera
       const cameraEl = document.createElement("a-camera");
@@ -190,6 +191,62 @@ export default function ARRetroPlayer() {
       sceneEl.appendChild(targetEl);
 
       sceneContainerRef.current.appendChild(sceneEl);
+
+      // ---- FORCE FULLSCREEN on MindAR video/canvas ----
+      // MindAR sets inline styles that override CSS, so we use
+      // a MutationObserver to catch and override them.
+      const forceFullscreen = (el: HTMLElement) => {
+        el.style.setProperty('position', 'fixed', 'important');
+        el.style.setProperty('top', '0', 'important');
+        el.style.setProperty('left', '0', 'important');
+        el.style.setProperty('width', '100vw', 'important');
+        el.style.setProperty('height', '100vh', 'important');
+        el.style.setProperty('height', '100dvh', 'important');
+        el.style.setProperty('object-fit', 'cover', 'important');
+        el.style.setProperty('z-index', '1', 'important');
+      };
+
+      const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+          mutation.addedNodes.forEach((node) => {
+            if (node instanceof HTMLElement) {
+              if (node.tagName === 'VIDEO' || node.tagName === 'CANVAS') {
+                forceFullscreen(node);
+              }
+              // Also check children (MindAR wraps elements)
+              node.querySelectorAll?.('video, canvas')?.forEach((child) => {
+                forceFullscreen(child as HTMLElement);
+              });
+            }
+          });
+          // Also catch attribute/style mutations on existing video/canvas
+          if (mutation.type === 'attributes' && mutation.target instanceof HTMLElement) {
+            const tag = mutation.target.tagName;
+            if (tag === 'VIDEO' || tag === 'CANVAS') {
+              forceFullscreen(mutation.target);
+            }
+          }
+        }
+      });
+
+      observer.observe(sceneEl, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style'],
+      });
+
+      // Also force existing elements right now
+      setTimeout(() => {
+        sceneEl.querySelectorAll('video, canvas').forEach((el) => {
+          forceFullscreen(el as HTMLElement);
+        });
+      }, 500);
+      setTimeout(() => {
+        sceneEl.querySelectorAll('video, canvas').forEach((el) => {
+          forceFullscreen(el as HTMLElement);
+        });
+      }, 2000);
 
       // Listen for events
       targetEl.addEventListener("targetFound", () => {
