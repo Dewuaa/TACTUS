@@ -195,7 +195,7 @@ export default function ARRetroPlayer() {
       // Only watch for NEW child elements being added, NOT style changes.
       // Use setInterval to periodically fix styles without causing loops.
       const forceFullscreen = (el: HTMLElement) => {
-        el.style.cssText = "position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100dvh!important;object-fit:cover!important;";
+        el.style.cssText = "position:fixed!important;top:0!important;left:0!important;width:100%!important;height:100dvh!important;object-fit:cover!important;";
       };
 
       const observer = new MutationObserver((mutations) => {
