@@ -111,31 +111,81 @@ export default function ARRetroPlayer() {
       const targetEl = document.createElement("a-entity");
       targetEl.setAttribute("mindar-image-target", "targetIndex: 0");
 
-      // Simple colored box as primary visual (lightweight, instant load)
-      const boxEl = document.createElement("a-box");
-      boxEl.setAttribute("position", "0 0.15 0");
-      boxEl.setAttribute("scale", "0.3 0.3 0.3");
-      boxEl.setAttribute("color", "#FF6B35");
-      boxEl.setAttribute("opacity", "0.9");
-      boxEl.setAttribute("animation", "property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear");
-      targetEl.appendChild(boxEl);
+      // ---- VINYL DISC GROUP (floating above target) ----
+      const discGroup = document.createElement("a-entity");
+      discGroup.setAttribute("position", "0 0 0.05");
+      discGroup.setAttribute("animation", "property: rotation; to: 0 0 360; loop: true; dur: 4000; easing: linear");
 
-      // Text label
-      const textEl = document.createElement("a-text");
-      textEl.setAttribute("value", "TACTUS");
-      textEl.setAttribute("color", "#FFFFFF");
-      textEl.setAttribute("align", "center");
-      textEl.setAttribute("position", "0 -0.15 0");
-      textEl.setAttribute("scale", "0.5 0.5 0.5");
-      targetEl.appendChild(textEl);
+      // Outer vinyl disc (dark)
+      const vinyl = document.createElement("a-cylinder");
+      vinyl.setAttribute("radius", "0.22");
+      vinyl.setAttribute("height", "0.008");
+      vinyl.setAttribute("color", "#1a1a1a");
+      vinyl.setAttribute("rotation", "90 0 0");
+      vinyl.setAttribute("material", "metalness: 0.9; roughness: 0.3");
+      discGroup.appendChild(vinyl);
 
-      // Optional: also load the GLB model if available (loads async)
-      const modelEl = document.createElement("a-gltf-model");
-      modelEl.setAttribute("src", "/models/boombox.glb");
-      modelEl.setAttribute("position", "0 0.4 0");
-      modelEl.setAttribute("rotation", "0 0 0");
-      modelEl.setAttribute("scale", "0.1 0.1 0.1");
-      targetEl.appendChild(modelEl);
+      // Vinyl grooves ring
+      const grooves = document.createElement("a-ring");
+      grooves.setAttribute("radius-inner", "0.08");
+      grooves.setAttribute("radius-outer", "0.21");
+      grooves.setAttribute("color", "#2a2a2a");
+      grooves.setAttribute("rotation", "90 0 0");
+      grooves.setAttribute("position", "0 0.005 0");
+      grooves.setAttribute("material", "opacity: 0.5; transparent: true");
+      discGroup.appendChild(grooves);
+
+      // Center label (orange brand color)
+      const label = document.createElement("a-cylinder");
+      label.setAttribute("radius", "0.07");
+      label.setAttribute("height", "0.01");
+      label.setAttribute("color", "#FF6B35");
+      label.setAttribute("rotation", "90 0 0");
+      label.setAttribute("position", "0 0.005 0");
+      label.setAttribute("material", "metalness: 0.3; roughness: 0.6");
+      discGroup.appendChild(label);
+
+      // Spindle hole
+      const hole = document.createElement("a-cylinder");
+      hole.setAttribute("radius", "0.012");
+      hole.setAttribute("height", "0.015");
+      hole.setAttribute("color", "#000000");
+      hole.setAttribute("rotation", "90 0 0");
+      hole.setAttribute("position", "0 0.006 0");
+      discGroup.appendChild(hole);
+
+      targetEl.appendChild(discGroup);
+
+      // ---- GLOW RING (pulsing, stays flat on target) ----
+      const glowRing = document.createElement("a-ring");
+      glowRing.setAttribute("radius-inner", "0.23");
+      glowRing.setAttribute("radius-outer", "0.26");
+      glowRing.setAttribute("color", "#FF6B35");
+      glowRing.setAttribute("rotation", "90 0 0");
+      glowRing.setAttribute("position", "0 0 0.04");
+      glowRing.setAttribute("material", "opacity: 0.4; transparent: true; emissive: #FF6B35; emissiveIntensity: 0.5");
+      glowRing.setAttribute("animation", "property: material.opacity; from: 0.2; to: 0.5; loop: true; dir: alternate; dur: 1500; easing: easeInOutSine");
+      targetEl.appendChild(glowRing);
+
+      // ---- BRAND TEXT (floating below disc) ----
+      const brandText = document.createElement("a-text");
+      brandText.setAttribute("value", "TACTUS");
+      brandText.setAttribute("color", "#FFFFFF");
+      brandText.setAttribute("align", "center");
+      brandText.setAttribute("position", "0 -0.3 0.05");
+      brandText.setAttribute("scale", "0.35 0.35 0.35");
+      brandText.setAttribute("font", "monoid");
+      targetEl.appendChild(brandText);
+
+      // ---- NOW PLAYING subtitle ----
+      const subText = document.createElement("a-text");
+      subText.setAttribute("value", "NOW PLAYING");
+      subText.setAttribute("color", "#FF6B35");
+      subText.setAttribute("align", "center");
+      subText.setAttribute("position", "0 0.32 0.05");
+      subText.setAttribute("scale", "0.2 0.2 0.2");
+      subText.setAttribute("font", "monoid");
+      targetEl.appendChild(subText);
 
       sceneEl.appendChild(targetEl);
 
@@ -304,89 +354,80 @@ export default function ARRetroPlayer() {
       <AnimatePresence>
         {arState === "active" && (
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 30 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="ar-controls"
+            exit={{ opacity: 0, y: 40 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed bottom-0 left-0 right-0 z-60 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
           >
-            {/* Scanning indicator */}
-            {!targetFound && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="mb-4 flex items-center justify-center gap-2"
-              >
-                <div className="h-2 w-2 animate-pulse rounded-full bg-white/40" />
-                <p className="text-xs uppercase tracking-[0.2em] text-white/50">
-                  Scanning for target…
-                </p>
-              </motion.div>
-            )}
+            {/* Scanning / Locked status bar */}
+            <div className="mb-3 flex justify-center">
+              {!targetFound ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-2 rounded-full bg-black/50 px-4 py-1.5 backdrop-blur-md"
+                >
+                  <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/50" />
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">
+                    Scanning…
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2 rounded-full bg-black/50 px-4 py-1.5 backdrop-blur-md"
+                >
+                  <div className="h-1.5 w-1.5 rounded-full bg-[#FF6B35]" />
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#FF6B35]/80">
+                    Now Playing
+                  </p>
+                </motion.div>
+              )}
+            </div>
 
-            {/* Target found indicator */}
-            {targetFound && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="mb-4 flex items-center justify-center gap-2"
-              >
-                <div className="h-2 w-2 rounded-full bg-green-400" />
-                <p className="text-xs uppercase tracking-[0.2em] text-green-400/80">
-                  Target Locked
+            {/* Main controls card */}
+            <div className="mx-auto flex max-w-xs items-center justify-between gap-3 rounded-2xl border border-white/10 bg-black/60 px-5 py-3.5 backdrop-blur-xl">
+              {/* Track info */}
+              <div className="flex-1 min-w-0">
+                <p
+                  className="truncate text-sm font-bold tracking-wide text-white"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  TACTUS
                 </p>
-              </motion.div>
-            )}
+                <p className="text-[10px] uppercase tracking-[0.15em] text-white/40">
+                  AR Experience
+                </p>
+              </div>
 
-            {/* Controls */}
-            <div className="flex items-center justify-center gap-4">
               {/* Play / Pause */}
               <button
                 onClick={toggleAudio}
                 id="ar-play-pause-btn"
-                className="flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-white/[0.08] backdrop-blur-md transition-all duration-200 active:scale-90 hover:bg-white/[0.12]"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FF6B35] transition-all duration-200 active:scale-90"
               >
                 {isPlaying ? (
-                  <svg
-                    className="h-6 w-6 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                   </svg>
                 ) : (
-                  <svg
-                    className="ml-0.5 h-6 w-6 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="ml-0.5 h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 )}
               </button>
 
-              {/* Exit AR */}
+              {/* Exit */}
               <button
                 onClick={exitAR}
                 id="ar-exit-btn"
-                className="flex h-14 items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-6 backdrop-blur-md transition-all duration-200 active:scale-95 hover:bg-white/[0.08]"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] transition-all duration-200 active:scale-90"
               >
-                <svg
-                  className="h-4 w-4 text-white/70"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18 18 6M6 6l12 12"
-                  />
+                <svg className="h-4 w-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                 </svg>
-                <span className="text-xs font-medium uppercase tracking-[0.15em] text-white/70">
-                  Exit AR
-                </span>
               </button>
             </div>
           </motion.div>
