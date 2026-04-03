@@ -358,7 +358,7 @@ export default function ARRetroPlayer() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed bottom-0 left-0 right-0 z-60 px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+            className="fixed bottom-0 left-0 right-0 z-[9999] px-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
           >
             {/* Scanning / Locked status bar */}
             <div className="mb-3 flex justify-center">

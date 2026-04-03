@@ -130,16 +130,42 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 60;
+  z-index: 9999;
   padding: 1.5rem;
   padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
   background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
 }
 
-/* ===== A-Frame Scene Reset ===== */
+/* ===== A-Frame Scene Fullscreen ===== */
 
 a-scene {
   position: fixed !important;
-  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
   z-index: 40 !important;
 }
+
+a-scene canvas {
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+}
+
+a-scene video,
+a-scene .a-canvas {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* Hide MindAR default UI overlays */
+.mindar-ui-overlay {
+  display: none !important;
+}
+
