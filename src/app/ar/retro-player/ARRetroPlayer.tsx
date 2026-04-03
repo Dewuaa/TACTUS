@@ -100,7 +100,6 @@ export default function ARRetroPlayer() {
       sceneEl.setAttribute("renderer", "colorManagement: true; physicallyCorrectLights: true;");
       sceneEl.setAttribute("vr-mode-ui", "enabled: false");
       sceneEl.setAttribute("device-orientation-permission-ui", "enabled: false");
-      sceneEl.setAttribute("embedded", "");
 
       // Camera
       const cameraEl = document.createElement("a-camera");
@@ -112,12 +111,12 @@ export default function ARRetroPlayer() {
       const targetEl = document.createElement("a-entity");
       targetEl.setAttribute("mindar-image-target", "targetIndex: 0");
 
-      // ---- VINYL DISC GROUP (floating above target) ----
+      // ---- VINYL DISC GROUP (spinning above target) ----
       const discGroup = document.createElement("a-entity");
       discGroup.setAttribute("position", "0 0 0.05");
       discGroup.setAttribute("animation", "property: rotation; to: 0 0 360; loop: true; dur: 4000; easing: linear");
 
-      // Outer vinyl disc (dark)
+      // Outer vinyl disc
       const vinyl = document.createElement("a-cylinder");
       vinyl.setAttribute("radius", "0.22");
       vinyl.setAttribute("height", "0.008");
@@ -157,7 +156,7 @@ export default function ARRetroPlayer() {
 
       targetEl.appendChild(discGroup);
 
-      // ---- GLOW RING (pulsing, stays flat on target) ----
+      // ---- GLOW RING (pulsing) ----
       const glowRing = document.createElement("a-ring");
       glowRing.setAttribute("radius-inner", "0.23");
       glowRing.setAttribute("radius-outer", "0.26");
@@ -168,7 +167,7 @@ export default function ARRetroPlayer() {
       glowRing.setAttribute("animation", "property: material.opacity; from: 0.2; to: 0.5; loop: true; dir: alternate; dur: 1500; easing: easeInOutSine");
       targetEl.appendChild(glowRing);
 
-      // ---- BRAND TEXT (floating below disc) ----
+      // ---- BRAND TEXT ----
       const brandText = document.createElement("a-text");
       brandText.setAttribute("value", "TACTUS");
       brandText.setAttribute("color", "#FFFFFF");
@@ -192,61 +191,43 @@ export default function ARRetroPlayer() {
 
       sceneContainerRef.current.appendChild(sceneEl);
 
-      // ---- FORCE FULLSCREEN on MindAR video/canvas ----
-      // MindAR sets inline styles that override CSS, so we use
-      // a MutationObserver to catch and override them.
+      // ---- FORCE FULLSCREEN (safe, no infinite loop) ----
+      // Only watch for NEW child elements being added, NOT style changes.
+      // Use setInterval to periodically fix styles without causing loops.
       const forceFullscreen = (el: HTMLElement) => {
-        el.style.setProperty('position', 'fixed', 'important');
-        el.style.setProperty('top', '0', 'important');
-        el.style.setProperty('left', '0', 'important');
-        el.style.setProperty('width', '100vw', 'important');
-        el.style.setProperty('height', '100vh', 'important');
-        el.style.setProperty('height', '100dvh', 'important');
-        el.style.setProperty('object-fit', 'cover', 'important');
-        el.style.setProperty('z-index', '1', 'important');
+        el.style.cssText = "position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100dvh!important;object-fit:cover!important;";
       };
 
       const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
           mutation.addedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
-              if (node.tagName === 'VIDEO' || node.tagName === 'CANVAS') {
+              if (node.tagName === "VIDEO" || node.tagName === "CANVAS") {
                 forceFullscreen(node);
               }
-              // Also check children (MindAR wraps elements)
-              node.querySelectorAll?.('video, canvas')?.forEach((child) => {
+              node.querySelectorAll?.("video, canvas")?.forEach((child) => {
                 forceFullscreen(child as HTMLElement);
               });
             }
           });
-          // Also catch attribute/style mutations on existing video/canvas
-          if (mutation.type === 'attributes' && mutation.target instanceof HTMLElement) {
-            const tag = mutation.target.tagName;
-            if (tag === 'VIDEO' || tag === 'CANVAS') {
-              forceFullscreen(mutation.target);
-            }
-          }
         }
       });
 
-      observer.observe(sceneEl, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['style'],
-      });
+      // Only watch childList — NOT attributes (prevents infinite loop)
+      observer.observe(sceneEl, { childList: true, subtree: true });
 
-      // Also force existing elements right now
-      setTimeout(() => {
-        sceneEl.querySelectorAll('video, canvas').forEach((el) => {
+      // Periodic check for 10 seconds, then stop
+      let checks = 0;
+      const interval = setInterval(() => {
+        sceneEl.querySelectorAll("video, canvas").forEach((el) => {
           forceFullscreen(el as HTMLElement);
         });
+        checks++;
+        if (checks >= 20) {
+          clearInterval(interval);
+          observer.disconnect();
+        }
       }, 500);
-      setTimeout(() => {
-        sceneEl.querySelectorAll('video, canvas').forEach((el) => {
-          forceFullscreen(el as HTMLElement);
-        });
-      }, 2000);
 
       // Listen for events
       targetEl.addEventListener("targetFound", () => {
