@@ -59,6 +59,7 @@ export default function ARRetroPlayer() {
     }
     setARState("intro");
     setTargetFound(false);
+    sceneCreatedRef.current = false;
 
     // Clean up the scene
     if (sceneContainerRef.current) {
@@ -84,10 +85,12 @@ export default function ARRetroPlayer() {
   }, [scriptsLoaded]);
 
   // Launch the A-Frame + MindAR scene
+  const sceneCreatedRef = useRef(false);
   const launchScene = useCallback(() => {
+    // Prevent double-creation of the scene
+    if (sceneCreatedRef.current) return;
+    sceneCreatedRef.current = true;
     setARState("loading");
-
-    if (!sceneContainerRef.current) return;
 
     // Small delay to let the UI update show loading state
     setTimeout(() => {
@@ -95,7 +98,7 @@ export default function ARRetroPlayer() {
 
       // Build the A-Frame scene via DOM
       const sceneEl = document.createElement("a-scene");
-      sceneEl.setAttribute("mindar-image", "imageTargetSrc: /ar/targets.mind; autoStart: true; uiLoading: no; uiError: no; uiScan: no;");
+      sceneEl.setAttribute("mindar-image", "imageTargetSrc: /ar/targets.mind; autoStart: true; uiLoading: no; uiError: no; uiScan: no; filterMinCF: 0.001; filterBeta: 10;");
       sceneEl.setAttribute("color-space", "sRGB");
       sceneEl.setAttribute("renderer", "colorManagement: true; physicallyCorrectLights: true;");
       sceneEl.setAttribute("vr-mode-ui", "enabled: false");
@@ -115,17 +118,14 @@ export default function ARRetroPlayer() {
       const phoenixModel = document.createElement("a-entity");
       phoenixModel.setAttribute("gltf-model", "url(/models/phoenix.glb)");
       // Position slightly up so it floats
-      phoenixModel.setAttribute("position", "0 0.1 0.1");
-      // Scale extremely reduced - this model's native geometry is thousands of units
-      phoenixModel.setAttribute("scale", "0.0003 0.0003 0.0003");
+      phoenixModel.setAttribute("position", "0 0.08 0.08");
+      // Scale reduced for smaller model
+      phoenixModel.setAttribute("scale", "0.0018 0.0018 0.0018");
       // Add animation mixer to automatically play its built-in animations
       phoenixModel.setAttribute("animation-mixer", "loop: repeat");
-
-      // Smooth entrance scale animation
-      phoenixModel.setAttribute("animation__scale", "property: scale; from: 0 0 0; to: 0.0003 0.0003 0.0003; dur: 800; easing: easeOutElastic");
       
-      // Floating hover animation
-      phoenixModel.setAttribute("animation__hover", "property: position; dir: alternate; from: 0 0.05 0.05; to: 0 0.1 0.05; dur: 2000; loop: true; easing: easeInOutSine");
+      // Floating hover animation - slower and subtler to reduce jitter perception
+      phoenixModel.setAttribute("animation__hover", "property: position; dir: alternate; from: 0 0.06 0.08; to: 0 0.1 0.08; dur: 3000; loop: true; easing: easeInOutQuad");
 
       targetEl.appendChild(phoenixModel);
 
@@ -178,14 +178,14 @@ export default function ARRetroPlayer() {
       // MindAR can inject camera video/canvas as siblings of <a-scene>, so observe container.
       observer.observe(sceneContainerRef.current!, { childList: true, subtree: true });
 
-      // Periodic check for 10 seconds, then stop
+      // Periodic check for 3 seconds only, then stop (reduced to minimize jitter)
       let checks = 0;
       const interval = setInterval(() => {
         sceneContainerRef.current?.querySelectorAll("video, canvas").forEach((el) => {
           forceFullscreen(el as HTMLElement);
         });
         checks++;
-        if (checks >= 20) {
+        if (checks >= 6) {
           clearInterval(interval);
           observer.disconnect();
         }
