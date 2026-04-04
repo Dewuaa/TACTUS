@@ -8,8 +8,8 @@ type ARState = "intro" | "loading" | "active" | "error";
 
 // Register custom A-Frame component for touch gestures (rotate/scale)
 const registerGestureComponent = () => {
-  const AFRAME = (window as unknown as { AFRAME: typeof import("aframe") })
-    .AFRAME;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const AFRAME = (window as any).AFRAME;
   if (!AFRAME || AFRAME.components["gesture-handler"]) return;
 
   AFRAME.registerComponent("gesture-handler", {
