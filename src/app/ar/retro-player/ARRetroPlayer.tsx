@@ -116,16 +116,16 @@ export default function ARRetroPlayer() {
       phoenixModel.setAttribute("gltf-model", "url(/models/phoenix.glb)");
       // Position slightly up so it floats
       phoenixModel.setAttribute("position", "0 0.1 0.1");
-      // Scale drastically reduced (some Sketchfab models are exported at 100x size)
-      phoenixModel.setAttribute("scale", "0.015 0.015 0.015");
+      // Scale extremely reduced - this model's native geometry is thousands of units
+      phoenixModel.setAttribute("scale", "0.0003 0.0003 0.0003");
       // Add animation mixer to automatically play its built-in animations
       phoenixModel.setAttribute("animation-mixer", "loop: repeat");
 
       // Smooth entrance scale animation
-      phoenixModel.setAttribute("animation__scale", "property: scale; from: 0 0 0; to: 0.015 0.015 0.015; dur: 800; easing: easeOutElastic");
+      phoenixModel.setAttribute("animation__scale", "property: scale; from: 0 0 0; to: 0.0003 0.0003 0.0003; dur: 800; easing: easeOutElastic");
       
       // Floating hover animation
-      phoenixModel.setAttribute("animation__hover", "property: position; dir: alternate; from: 0 0.1 0.1; to: 0 0.15 0.1; dur: 2000; loop: true; easing: easeInOutSine");
+      phoenixModel.setAttribute("animation__hover", "property: position; dir: alternate; from: 0 0.05 0.05; to: 0 0.1 0.05; dur: 2000; loop: true; easing: easeInOutSine");
 
       targetEl.appendChild(phoenixModel);
 
