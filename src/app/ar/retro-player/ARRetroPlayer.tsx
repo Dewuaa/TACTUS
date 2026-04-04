@@ -111,61 +111,23 @@ export default function ARRetroPlayer() {
       const targetEl = document.createElement("a-entity");
       targetEl.setAttribute("mindar-image-target", "targetIndex: 0");
 
-      // ---- VINYL DISC GROUP (spinning above target) ----
-      const discGroup = document.createElement("a-entity");
-      discGroup.setAttribute("position", "0 0 0.05");
-      discGroup.setAttribute("animation", "property: rotation; to: 0 0 360; loop: true; dur: 4000; easing: linear");
+      // ---- ANIMATED PHOENIX MODEL ----
+      const phoenixModel = document.createElement("a-entity");
+      phoenixModel.setAttribute("gltf-model", "url(/models/phoenix.glb)");
+      // Position slightly up so it floats
+      phoenixModel.setAttribute("position", "0 0.1 0.1");
+      // Scale drastically reduced (some Sketchfab models are exported at 100x size)
+      phoenixModel.setAttribute("scale", "0.015 0.015 0.015");
+      // Add animation mixer to automatically play its built-in animations
+      phoenixModel.setAttribute("animation-mixer", "loop: repeat");
 
-      // Outer vinyl disc
-      const vinyl = document.createElement("a-cylinder");
-      vinyl.setAttribute("radius", "0.22");
-      vinyl.setAttribute("height", "0.008");
-      vinyl.setAttribute("color", "#1a1a1a");
-      vinyl.setAttribute("rotation", "90 0 0");
-      vinyl.setAttribute("material", "metalness: 0.9; roughness: 0.3");
-      discGroup.appendChild(vinyl);
+      // Smooth entrance scale animation
+      phoenixModel.setAttribute("animation__scale", "property: scale; from: 0 0 0; to: 0.015 0.015 0.015; dur: 800; easing: easeOutElastic");
+      
+      // Floating hover animation
+      phoenixModel.setAttribute("animation__hover", "property: position; dir: alternate; from: 0 0.1 0.1; to: 0 0.15 0.1; dur: 2000; loop: true; easing: easeInOutSine");
 
-      // Vinyl grooves ring
-      const grooves = document.createElement("a-ring");
-      grooves.setAttribute("radius-inner", "0.08");
-      grooves.setAttribute("radius-outer", "0.21");
-      grooves.setAttribute("color", "#2a2a2a");
-      grooves.setAttribute("rotation", "90 0 0");
-      grooves.setAttribute("position", "0 0.005 0");
-      grooves.setAttribute("material", "opacity: 0.5; transparent: true");
-      discGroup.appendChild(grooves);
-
-      // Center label (orange brand color)
-      const label = document.createElement("a-cylinder");
-      label.setAttribute("radius", "0.07");
-      label.setAttribute("height", "0.01");
-      label.setAttribute("color", "#FF6B35");
-      label.setAttribute("rotation", "90 0 0");
-      label.setAttribute("position", "0 0.005 0");
-      label.setAttribute("material", "metalness: 0.3; roughness: 0.6");
-      discGroup.appendChild(label);
-
-      // Spindle hole
-      const hole = document.createElement("a-cylinder");
-      hole.setAttribute("radius", "0.012");
-      hole.setAttribute("height", "0.015");
-      hole.setAttribute("color", "#000000");
-      hole.setAttribute("rotation", "90 0 0");
-      hole.setAttribute("position", "0 0.006 0");
-      discGroup.appendChild(hole);
-
-      targetEl.appendChild(discGroup);
-
-      // ---- GLOW RING (pulsing) ----
-      const glowRing = document.createElement("a-ring");
-      glowRing.setAttribute("radius-inner", "0.23");
-      glowRing.setAttribute("radius-outer", "0.26");
-      glowRing.setAttribute("color", "#FF6B35");
-      glowRing.setAttribute("rotation", "90 0 0");
-      glowRing.setAttribute("position", "0 0 0.04");
-      glowRing.setAttribute("material", "opacity: 0.4; transparent: true; emissive: #FF6B35; emissiveIntensity: 0.5");
-      glowRing.setAttribute("animation", "property: material.opacity; from: 0.2; to: 0.5; loop: true; dir: alternate; dur: 1500; easing: easeInOutSine");
-      targetEl.appendChild(glowRing);
+      targetEl.appendChild(phoenixModel);
 
       // ---- BRAND TEXT ----
       const brandText = document.createElement("a-text");
@@ -263,18 +225,24 @@ export default function ARRetroPlayer() {
 
   return (
     <>
-      {/* External Scripts – load A-Frame then MindAR */}
+      {/* External Scripts – load A-Frame, Extras (for animation), then MindAR */}
       <Script
         src="https://aframe.io/releases/1.6.0/aframe.min.js"
         strategy="lazyOnload"
         onLoad={() => setAframeLoaded(true)}
       />
       {aframeLoaded && (
-        <Script
-          src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"
-          strategy="lazyOnload"
-          onLoad={() => setScriptsLoaded(true)}
-        />
+        <>
+          <Script
+            src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"
+            strategy="lazyOnload"
+          />
+          <Script
+            src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"
+            strategy="lazyOnload"
+            onLoad={() => setScriptsLoaded(true)}
+          />
+        </>
       )}
 
       {/* ===== INTRO SCREEN ===== */}
