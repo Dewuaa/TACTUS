@@ -6,6 +6,95 @@ import Script from "next/script";
 
 type ARState = "intro" | "loading" | "active" | "error";
 
+// Register custom A-Frame component for touch gestures (rotate/scale)
+const registerGestureComponent = () => {
+  const AFRAME = (window as unknown as { AFRAME: typeof import("aframe") })
+    .AFRAME;
+  if (!AFRAME || AFRAME.components["gesture-handler"]) return;
+
+  AFRAME.registerComponent("gesture-handler", {
+    schema: {
+      rotationFactor: { type: "number", default: 5 },
+      scaleFactor: { type: "number", default: 0.01 },
+      minScale: { type: "number", default: 0.5 },
+      maxScale: { type: "number", default: 3 },
+    },
+
+    init: function () {
+      this.handleRotation = this.handleRotation.bind(this);
+      this.handleScale = this.handleScale.bind(this);
+      this.initialScale = this.el.object3D.scale.clone();
+      this.scaleFactor = 1;
+
+      // Touch tracking
+      this.touchStartX = 0;
+      this.touchStartY = 0;
+      this.initialPinchDistance = 0;
+
+      // Rotation (single touch drag)
+      this.el.sceneEl?.addEventListener("touchstart", (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+          this.touchStartX = e.touches[0].clientX;
+          this.touchStartY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+          this.initialPinchDistance = this.getPinchDistance(e);
+        }
+      });
+
+      this.el.sceneEl?.addEventListener("touchmove", (e: TouchEvent) => {
+        if (e.touches.length === 1) {
+          this.handleRotation(e);
+        } else if (e.touches.length === 2) {
+          this.handleScale(e);
+        }
+      });
+    },
+
+    getPinchDistance: function (e: TouchEvent): number {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    },
+
+    handleRotation: function (e: TouchEvent) {
+      const deltaX = e.touches[0].clientX - this.touchStartX;
+      const deltaY = e.touches[0].clientY - this.touchStartY;
+
+      this.touchStartX = e.touches[0].clientX;
+      this.touchStartY = e.touches[0].clientY;
+
+      const rotation = this.el.getAttribute("rotation") as {
+        x: number;
+        y: number;
+        z: number;
+      };
+      this.el.setAttribute("rotation", {
+        x: rotation.x - deltaY * this.data.rotationFactor * 0.1,
+        y: rotation.y + deltaX * this.data.rotationFactor * 0.1,
+        z: rotation.z,
+      });
+    },
+
+    handleScale: function (e: TouchEvent) {
+      const currentDistance = this.getPinchDistance(e);
+      const delta = currentDistance - this.initialPinchDistance;
+      this.initialPinchDistance = currentDistance;
+
+      this.scaleFactor += delta * this.data.scaleFactor * 0.01;
+      this.scaleFactor = Math.max(
+        this.data.minScale,
+        Math.min(this.data.maxScale, this.scaleFactor),
+      );
+
+      this.el.object3D.scale.set(
+        this.initialScale.x * this.scaleFactor,
+        this.initialScale.y * this.scaleFactor,
+        this.initialScale.z * this.scaleFactor,
+      );
+    },
+  });
+};
+
 export default function ARRetroPlayer() {
   const [arState, setARState] = useState<ARState>("intro");
   const [isPlaying, setIsPlaying] = useState(false);
@@ -96,13 +185,25 @@ export default function ARRetroPlayer() {
     setTimeout(() => {
       if (!sceneContainerRef.current) return;
 
+      // Register the custom gesture component before creating scene
+      registerGestureComponent();
+
       // Build the A-Frame scene via DOM
       const sceneEl = document.createElement("a-scene");
-      sceneEl.setAttribute("mindar-image", "imageTargetSrc: /ar/targets.mind; autoStart: true; uiLoading: no; uiError: no; uiScan: no; filterMinCF: 0.001; filterBeta: 10;");
+      sceneEl.setAttribute(
+        "mindar-image",
+        "imageTargetSrc: /ar/targets.mind; autoStart: true; uiLoading: no; uiError: no; uiScan: no; filterMinCF: 0.001; filterBeta: 10;",
+      );
       sceneEl.setAttribute("color-space", "sRGB");
-      sceneEl.setAttribute("renderer", "colorManagement: true; physicallyCorrectLights: true;");
+      sceneEl.setAttribute(
+        "renderer",
+        "colorManagement: true; physicallyCorrectLights: true;",
+      );
       sceneEl.setAttribute("vr-mode-ui", "enabled: false");
-      sceneEl.setAttribute("device-orientation-permission-ui", "enabled: false");
+      sceneEl.setAttribute(
+        "device-orientation-permission-ui",
+        "enabled: false",
+      );
 
       // Camera
       const cameraEl = document.createElement("a-camera");
@@ -119,13 +220,20 @@ export default function ARRetroPlayer() {
       phoenixModel.setAttribute("gltf-model", "url(/models/phoenix.glb)");
       // Position slightly up so it floats
       phoenixModel.setAttribute("position", "0 0.08 0.08");
+      // Initial rotation (can be changed by gestures)
+      phoenixModel.setAttribute("rotation", "0 0 0");
       // Scale reduced for smaller model
       phoenixModel.setAttribute("scale", "0.0018 0.0018 0.0018");
       // Add animation mixer to automatically play its built-in animations
       phoenixModel.setAttribute("animation-mixer", "loop: repeat");
-      
+      // Enable touch gestures for rotation and pinch-to-scale
+      phoenixModel.setAttribute("gesture-handler", "rotationFactor: 4; scaleFactor: 0.8; minScale: 0.3; maxScale: 2.5");
+
       // Floating hover animation - slower and subtler to reduce jitter perception
-      phoenixModel.setAttribute("animation__hover", "property: position; dir: alternate; from: 0 0.06 0.08; to: 0 0.1 0.08; dur: 3000; loop: true; easing: easeInOutQuad");
+      phoenixModel.setAttribute(
+        "animation__hover",
+        "property: position; dir: alternate; from: 0 0.06 0.08; to: 0 0.1 0.08; dur: 3000; loop: true; easing: easeInOutQuad",
+      );
 
       targetEl.appendChild(phoenixModel);
 
@@ -157,7 +265,8 @@ export default function ARRetroPlayer() {
       // Only watch for NEW child elements being added, NOT style changes.
       // Use setInterval to periodically fix styles without causing loops.
       const forceFullscreen = (el: HTMLElement) => {
-        el.style.cssText = "position:fixed!important;top:0!important;left:0!important;width:100%!important;height:100dvh!important;object-fit:cover!important;";
+        el.style.cssText =
+          "position:fixed!important;top:0!important;left:0!important;width:100%!important;height:100dvh!important;object-fit:cover!important;";
       };
 
       const observer = new MutationObserver((mutations) => {
@@ -176,14 +285,19 @@ export default function ARRetroPlayer() {
       });
 
       // MindAR can inject camera video/canvas as siblings of <a-scene>, so observe container.
-      observer.observe(sceneContainerRef.current!, { childList: true, subtree: true });
+      observer.observe(sceneContainerRef.current!, {
+        childList: true,
+        subtree: true,
+      });
 
       // Periodic check for 3 seconds only, then stop (reduced to minimize jitter)
       let checks = 0;
       const interval = setInterval(() => {
-        sceneContainerRef.current?.querySelectorAll("video, canvas").forEach((el) => {
-          forceFullscreen(el as HTMLElement);
-        });
+        sceneContainerRef.current
+          ?.querySelectorAll("video, canvas")
+          .forEach((el) => {
+            forceFullscreen(el as HTMLElement);
+          });
         checks++;
         if (checks >= 6) {
           clearInterval(interval);
@@ -354,7 +468,10 @@ export default function ARRetroPlayer() {
       </AnimatePresence>
 
       {/* ===== AR SCENE CONTAINER ===== */}
-      <div ref={sceneContainerRef} className="ar-scene-container fixed inset-0 z-40" />
+      <div
+        ref={sceneContainerRef}
+        className="ar-scene-container fixed inset-0 z-40"
+      />
 
       {/* ===== AR CONTROLS OVERLAY ===== */}
       <AnimatePresence>
@@ -415,11 +532,19 @@ export default function ARRetroPlayer() {
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FF6B35] transition-all duration-200 active:scale-90"
               >
                 {isPlaying ? (
-                  <svg className="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="h-5 w-5 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
                   </svg>
                 ) : (
-                  <svg className="ml-0.5 h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="ml-0.5 h-5 w-5 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 )}
@@ -431,8 +556,18 @@ export default function ARRetroPlayer() {
                 id="ar-exit-btn"
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] transition-all duration-200 active:scale-90"
               >
-                <svg className="h-4 w-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                <svg
+                  className="h-4 w-4 text-white/60"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
