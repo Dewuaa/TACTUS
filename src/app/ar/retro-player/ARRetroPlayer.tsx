@@ -217,22 +217,25 @@ export default function ARRetroPlayer() {
 
       // ---- ANIMATED PHOENIX MODEL ----
       const phoenixModel = document.createElement("a-entity");
-      phoenixModel.setAttribute("gltf-model", "url(/models/phoenix.glb)");
+      phoenixModel.setAttribute("gltf-model", "url(/models/kuromi.glb)");
       // Position slightly up so it floats
-      phoenixModel.setAttribute("position", "0 0.08 0.08");
+      phoenixModel.setAttribute("position", "0 0.05 0.05");
       // Initial rotation (can be changed by gestures)
       phoenixModel.setAttribute("rotation", "0 0 0");
-      // Scale reduced for smaller model
-      phoenixModel.setAttribute("scale", "0.0018 0.0018 0.0018");
+      // Scale for Kuromi model
+      phoenixModel.setAttribute("scale", "0.25 0.25 0.25");
       // Add animation mixer to automatically play its built-in animations
       phoenixModel.setAttribute("animation-mixer", "loop: repeat");
       // Enable touch gestures for rotation and pinch-to-scale
-      phoenixModel.setAttribute("gesture-handler", "rotationFactor: 4; scaleFactor: 0.8; minScale: 0.3; maxScale: 2.5");
+      phoenixModel.setAttribute(
+        "gesture-handler",
+        "rotationFactor: 4; scaleFactor: 0.8; minScale: 0.3; maxScale: 2.5",
+      );
 
       // Floating hover animation - slower and subtler to reduce jitter perception
       phoenixModel.setAttribute(
         "animation__hover",
-        "property: position; dir: alternate; from: 0 0.06 0.08; to: 0 0.1 0.08; dur: 3000; loop: true; easing: easeInOutQuad",
+        "property: position; dir: alternate; from: 0 0.03 0.05; to: 0 0.07 0.05; dur: 3000; loop: true; easing: easeInOutQuad",
       );
 
       targetEl.appendChild(phoenixModel);
