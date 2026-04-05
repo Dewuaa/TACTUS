@@ -34,8 +34,19 @@ body {
 /* Mobile Viewport Fix */
 html,
 body {
-  height: 100dvh;
+  min-height: 100dvh;
+}
+
+/* Landing page allows scroll */
+body:has(.landing-page) {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* AR pages stay locked */
+body:has(.ar-scene-container) {
   overflow: hidden;
+  height: 100dvh;
 }
 
 /* ===== Custom Scrollbar ===== */
