@@ -20,10 +20,32 @@ export default function SetupClient() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isWebNFCAvailable, setIsWebNFCAvailable] = useState<boolean | null>(null);
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [pin, setPin] = useState("");
+  const ADMIN_PIN = "0000"; // You can change this to your desired PIN
+
   // Check if Web NFC is supported on mount
   useEffect(() => {
+    setIsAuthenticated(localStorage.getItem("admin_auth") === "true");
     setIsWebNFCAvailable("NDEFReader" in window);
   }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pin === ADMIN_PIN) {
+      setIsAuthenticated(true);
+      localStorage.setItem("admin_auth", "true");
+    } else {
+      setErrorMessage("Incorrect PIN");
+      setStatus("error");
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem("admin_auth");
+    setPin("");
+  };
 
   // Extract Track ID when URL changes
   useEffect(() => {
@@ -34,12 +56,11 @@ export default function SetupClient() {
     }
 
     // Try to extract from common Spotify URL formats
-    // Example: https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT?si=xyz
     const trackMatch = spotifyUrl.match(/track\/([a-zA-Z0-9]+)/);
     
     if (trackMatch && trackMatch[1]) {
       setTrackId(trackMatch[1]);
-      setStatus("idle"); // Reset status when a new valid track is found
+      setStatus("idle"); 
     } else {
       setTrackId(null);
     }
@@ -53,7 +74,6 @@ export default function SetupClient() {
     }
 
     if (!isWebNFCAvailable) {
-      // Should not reach here if button is disabled, but just as a fallback
       return;
     }
 
@@ -62,23 +82,14 @@ export default function SetupClient() {
 
     try {
       const ndef = new window.NDEFReader();
-      
-      // Request permission and start scanning
       await ndef.scan();
-      
-      const payloadUrl = `https://tactus-red.vercel.app/play/${trackId}`;
+      const payloadUrl = `${window.location.origin}/play/${trackId}`;
       
       await ndef.write({
-        records: [
-          {
-            recordType: "url",
-            data: payloadUrl,
-          },
-        ],
+        records: [{ recordType: "url", data: payloadUrl }],
       });
       
       setStatus("success");
-      
     } catch (error: any) {
       console.error("NFC Write Error:", error);
       setStatus("error");
@@ -90,7 +101,31 @@ export default function SetupClient() {
     }
   };
 
-  const payloadUrl = trackId ? `https://tactus-red.vercel.app/play/${trackId}` : "";
+  const payloadUrl = trackId ? `${typeof window !== "undefined" ? window.location.origin : ""}/play/${trackId}` : "";
+
+  if (!isAuthenticated) {
+    return (
+      <main className="relative min-h-dvh w-full overflow-hidden flex flex-col items-center justify-center bg-tactus-black px-6">
+        <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-xl">
+          <h2 className="mb-2 text-xl font-semibold text-white">Admin Access</h2>
+          <p className="mb-6 text-sm text-tactus-muted">Enter PIN to access the NFC programmer.</p>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <input
+              type="password"
+              value={pin}
+              onChange={(e) => setPin(e.target.value)}
+              placeholder="Enter PIN"
+              className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-center text-lg tracking-[0.5em] text-white focus:border-[#FF6B35]/50 focus:outline-none"
+            />
+            <button type="submit" className="w-full rounded-xl bg-[#FF6B35] py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#ff8559]">
+              Unlock Tool
+            </button>
+          </form>
+          {status === "error" && <p className="mt-4 text-center text-xs text-red-400">{errorMessage}</p>}
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="relative min-h-dvh w-full overflow-hidden flex flex-col items-center justify-center bg-tactus-black px-6">
@@ -107,7 +142,10 @@ export default function SetupClient() {
           </h1>
         </Link>
 
-        <div className="w-full rounded-3xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-xl">
+        <div className="w-full rounded-3xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-xl relative">
+          <button onClick={handleLogout} className="absolute top-4 right-4 text-[10px] uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors">
+            Logout
+          </button>
           <h2 className="mb-2 text-xl font-semibold text-white">Program Keychain</h2>
           <p className="mb-6 text-sm text-tactus-muted">
             Paste a Spotify track link below to configure your NFC keychain.
