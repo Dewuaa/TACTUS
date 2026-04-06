@@ -40,7 +40,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${leagueSpartan.variable} ${inter.variable} h-dvh`}
+      className={`${leagueSpartan.variable} ${inter.variable} h-dvh scroll-smooth`}
     >
       <body className="min-h-dvh overflow-x-hidden bg-tactus-black text-tactus-white antialiased">
         {children}

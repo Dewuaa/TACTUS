@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useState, useEffect } from "react";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -18,134 +18,191 @@ const staggerContainer = {
   },
 };
 
+// Reusable Spring Button Component
+const SpringButton = ({ href, children, variant = "primary" }: { href: string; children: React.ReactNode; variant?: "primary" | "secondary" }) => {
+  const baseClasses = "inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl py-3.5 px-8 text-sm font-semibold tracking-wide transition-colors";
+  const variants = {
+    primary: "bg-[#FF6B35] text-white shadow-lg shadow-[#FF6B35]/20 hover:bg-[#ff8559]",
+    secondary: "bg-white/5 border border-white/10 text-white/90 hover:bg-white/10",
+  };
+
+  return (
+    <motion.a
+      href={href}
+      target={href.startsWith("http") ? "_blank" : undefined}
+      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+      className={`${baseClasses} ${variants[variant]}`}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+    >
+      {children}
+    </motion.a>
+  );
+};
+
 export default function HomePage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+  const { scrollY } = useScroll();
+
+  // Parallax transform for Hero Background
+  const yBg = useTransform(scrollY, [0, 1000], [0, 200]);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
 
   return (
-    <main className="landing-page relative min-h-dvh overflow-x-hidden bg-tactus-black">
-      {/* ===== HERO SECTION ===== */}
-      <section className="relative flex min-h-dvh flex-col items-center justify-center px-6 py-20 pb-32">
-        {/* Background radial glow */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)]" />
+    <main className="landing-page relative min-h-dvh overflow-x-hidden bg-tactus-black selection:bg-[#FF6B35]/30">
+      {/* Global Noise Layer */}
+      <div className="bg-noise absolute inset-0 z-50 pointer-events-none" />
 
-        {/* Animated ring */}
-        <div className="pulse-glow pointer-events-none absolute h-80 w-80 md:h-[500px] md:w-[500px] rounded-full border border-white/[0.06]" />
-
-        {/* Content */}
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-          className="relative z-10 flex flex-col items-center gap-6 text-center"
-        >
-          {/* Brand Mark */}
-          <motion.h1
-            variants={fadeInUp}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="text-shimmer text-6xl font-black tracking-[0.2em] sm:text-8xl"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
+      {/* Floating Glass Navbar */}
+      <motion.header
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+          scrolled ? "bg-black/50 backdrop-blur-xl border-b border-white/5 py-4 shadow-2xl" : "bg-transparent py-6"
+        }`}
+      >
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
+          <Link href="/" className="text-xl font-bold tracking-widest text-white" style={{ fontFamily: "var(--font-display)" }}>
             TACTUS
-          </motion.h1>
-
-          {/* Tagline */}
-          <motion.p
-            variants={fadeInUp}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-md text-lg leading-relaxed text-tactus-muted sm:text-xl"
+          </Link>
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-white/50">
+            <a href="#shop" className="hover:text-white transition-colors">Collection</a>
+            <a href="#how-it-works" className="hover:text-white transition-colors">How it Works</a>
+            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+          </nav>
+          <motion.a
+            href="https://ig.me/m/tactus"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full bg-white px-5 py-2 text-xs font-bold uppercase tracking-wider text-black transition-colors hover:bg-white/90"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            Your music & memories in a tap.<br />
-            <span className="text-white/70">The next-generation smart keychain.</span>
-          </motion.p>
+            Order Now
+          </motion.a>
+        </div>
+      </motion.header>
 
-          {/* New Hero Image - Showcasing Basic Tier */}
-          <motion.div 
-            variants={fadeInUp}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="relative mt-8 mb-4 w-full max-w-sm overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-white/5"
-          >
-            <div className="aspect-[4/5] relative">
-               <Image 
-                 src="/products/basic-keychain-1.jpg" 
-                 alt="TACTUS Basic Keychain" 
-                 fill 
-                 className="object-cover"
-                 priority
-               />
-               {/* Subtle gradient overlay to make it blend */}
-               <div className="absolute inset-0 bg-gradient-to-t from-tactus-black/60 to-transparent" />
-            </div>
-          </motion.div>
-
-          {/* CTA Buttons */}
-          <motion.div
-            variants={fadeInUp}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col items-center gap-3 sm:flex-row sm:gap-4 mt-2"
-          >
-            <a
-              href="#shop"
-              className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-white px-10 py-4 text-sm font-semibold uppercase tracking-wider text-tactus-black transition-all duration-300 hover:bg-white/90 hover:scale-[1.02]"
-            >
-              Shop Collection
-              <svg
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </a>
-            <a
-              href="#demo"
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 px-8 py-4 text-sm font-medium uppercase tracking-wider text-white/60 transition-all duration-300 hover:border-white/20 hover:text-white"
-            >
-              Try AR Demo
-            </a>
-          </motion.div>
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="absolute bottom-8 flex flex-col items-center gap-2"
+      {/* ===== HERO SECTION ===== */}
+      <section className="relative flex min-h-dvh flex-col items-center justify-start lg:justify-center px-6 pt-32 pb-20 overflow-visible">
+        {/* Cinematic Parallax Background */}
+        <motion.div 
+          style={{ y: yBg }} 
+          className="absolute inset-0 pointer-events-none"
         >
-          <span className="text-[10px] uppercase tracking-[0.2em] text-white/20">Scroll to explore</span>
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            className="h-8 w-px bg-gradient-to-b from-white/20 to-transparent"
-          />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,rgba(255,107,53,0.15)_0%,transparent_50%)]" />
         </motion.div>
+
+        <div className="mx-auto max-w-6xl w-full flex flex-col lg:grid lg:grid-cols-2 gap-12 items-center z-10 pt-4 lg:pt-10">
+          
+          {/* Left Text Content */}
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="flex flex-col items-center lg:items-start gap-6 text-center lg:text-left mt-10 lg:mt-0"
+          >
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 rounded-full border border-[#FF6B35]/30 bg-[#FF6B35]/10 px-3 py-1 text-xs font-medium text-[#FF6B35]">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF6B35] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF6B35]"></span>
+              </span>
+              The Phygital Era
+            </motion.div>
+
+            <motion.h1
+              variants={fadeInUp}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="text-5xl font-black tracking-tight text-white sm:text-7xl leading-[1.1]"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Your music.<br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B35] to-[#ffaa85]">Unlocked in a tap.</span>
+            </motion.h1>
+
+            <motion.p
+              variants={fadeInUp}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              className="max-w-lg text-lg leading-relaxed text-white/50"
+            >
+              The premium smart keychain that bridges the physical and digital world. Instantly play songs or summon 3D AR holograms directly to your phone.
+            </motion.p>
+
+            <motion.div
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row w-full sm:w-auto gap-4 mt-4"
+            >
+              <SpringButton href="#shop" variant="primary">
+                Shop Collection
+              </SpringButton>
+              <SpringButton href="#demo" variant="secondary">
+                Try AR Demo
+              </SpringButton>
+            </motion.div>
+          </motion.div>
+
+          {/* Right Cinematic Hero Image showcase */}
+          <motion.div 
+             initial={{ opacity: 0, scale: 0.9, rotateY: 15 }}
+             animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+             transition={{ duration: 1, type: "spring", bounce: 0.4 }}
+             className="relative w-full aspect-[4/5] lg:aspect-square max-w-[400px] lg:max-w-[500px] mx-auto perspective-1000 mt-8 lg:mt-0"
+          >
+             {/* Glowing shadow behind the product */}
+             <motion.div 
+               animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.05, 1] }} 
+               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+               className="absolute inset-4 bg-[#FF6B35]/20 blur-[60px] rounded-full pointer-events-none"
+             />
+             
+             {/* Styled Image Card */}
+             <motion.div
+                animate={{ y: [-5, 5, -5] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="relative w-full h-full rounded-3xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+             >
+                <div className="absolute inset-0 bg-gradient-to-t from-[#101010] via-transparent to-[#101010]/20 z-10 pointer-events-none" />
+                <Image 
+                  src="/products/pro-keychain.png" 
+                  alt="TACTUS NFC Keychain" 
+                  fill 
+                  className="object-cover"
+                  priority
+                />
+             </motion.div>
+          </motion.div>
+
+        </div>
       </section>
 
       {/* ===== PRODUCT TIERS (SHOP) ===== */}
-      <section id="shop" className="relative px-6 py-24">
-        {/* Subtle top border */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
-        <div className="mx-auto max-w-6xl">
+      <section id="shop" className="relative px-6 py-32 bg-black/50 border-y border-white/5">
+        <div className="mx-auto max-w-5xl">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
-            className="mb-16 text-center"
+            className="mb-20 text-center"
           >
-            <motion.p variants={fadeInUp} className="mb-3 text-xs uppercase tracking-[0.3em] text-white/30">
+            <motion.h2 variants={fadeInUp} className="text-4xl font-bold tracking-tight text-white sm:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
               The Collection
-            </motion.p>
-            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-wide text-white sm:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
-              Choose Your Experience
             </motion.h2>
+            <motion.p variants={fadeInUp} className="mt-4 text-white/40 max-w-xl mx-auto">
+              Engineered with premium acrylic and invisible NFC technology. Choose your experience.
+            </motion.p>
           </motion.div>
 
           <motion.div
@@ -153,70 +210,81 @@ export default function HomePage() {
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
-            className="grid gap-8 sm:grid-cols-2 max-w-4xl mx-auto"
+            className="grid gap-10 sm:grid-cols-2 relative"
           >
             {/* TIER 1: TACTUS NFC */}
-            <motion.div variants={fadeInUp} className="relative flex flex-col overflow-hidden rounded-3xl border border-[#FF6B35]/30 bg-gradient-to-b from-[#FF6B35]/5 to-transparent transition-all hover:border-[#FF6B35]/50">
-              <div className="absolute top-4 right-4 z-10 rounded-full bg-[#FF6B35] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+            <motion.div 
+               variants={fadeInUp} 
+               className="group relative flex flex-col overflow-hidden rounded-3xl border border-[#FF6B35]/20 bg-[#1a1a1a] shadow-2xl transition-all hover:border-[#FF6B35]/50 hover:-translate-y-2"
+            >
+              {/* Animated Border Glow effect on hover */}
+              <div className="absolute inset-0 bg-gradient-to-b from-[#FF6B35]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+              <div className="absolute top-4 right-4 z-10 rounded-full bg-[#FF6B35]/10 border border-[#FF6B35]/30 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[#FF6B35] backdrop-blur-md">
                 Best Seller
               </div>
-              <div className="relative aspect-[4/3] w-full bg-black/50">
-                <Image src="/products/pro-keychain.png" alt="TACTUS NFC Keychain" fill className="object-cover" />
+              <div className="relative aspect-[4/3] w-full bg-black">
+                <Image src="/products/pro-keychain.png" alt="TACTUS NFC Keychain" fill className="object-cover opacity-80 group-hover:opacity-100 transition-opacity group-hover:scale-105 duration-700" />
               </div>
-              <div className="flex flex-1 flex-col p-8">
+              <div className="flex flex-1 flex-col p-8 relative z-10">
                 <div className="mb-2 flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-white/90" style={{ fontFamily: "var(--font-display)" }}>TACTUS NFC</h3>
-                  <span className="rounded-full bg-[#FF6B35]/20 px-3 py-1 text-sm font-semibold text-[#FF6B35]">₱99</span>
+                  <h3 className="text-3xl font-bold text-white/90" style={{ fontFamily: "var(--font-display)" }}>TACTUS NFC</h3>
+                  <span className="text-2xl font-black text-white">₱99</span>
                 </div>
-                <p className="mb-6 text-sm text-white/50">The original smart keychain with magic tap.</p>
-                <ul className="mb-8 flex-1 space-y-3 text-sm text-white/70">
-                  <li className="flex items-start gap-3">
-                    <span className="mt-0.5 text-[#FF6B35]">✓</span>
+                <p className="mb-8 text-sm text-white/50">The original smart keychain with magic tap.</p>
+                <ul className="mb-10 flex-1 space-y-4 text-sm text-white/70">
+                  <li className="flex items-start gap-4">
+                    <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#FF6B35]/20 text-[#FF6B35] text-[10px]">✓</span>
                     <span><strong>Tap to play</strong> instantly via NFC</span>
                   </li>
-                  <li className="flex items-start gap-3">
-                    <span className="mt-0.5 text-[#FF6B35]">✓</span>
+                  <li className="flex items-start gap-4">
+                    <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white/50 text-[10px]">✓</span>
                     <span>No app required – works on all phones</span>
                   </li>
-                  <li className="flex items-start gap-3">
-                    <span className="mt-0.5 text-[#FF6B35]">✓</span>
+                  <li className="flex items-start gap-4">
+                    <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white/50 text-[10px]">✓</span>
                     <span>Holographic premium packaging</span>
                   </li>
                 </ul>
-                <a href="https://ig.me/m/tactus" target="_blank" rel="noopener noreferrer" className="w-full rounded-xl bg-[#FF6B35] py-3.5 text-center text-sm font-semibold text-white shadow-lg shadow-[#FF6B35]/20 transition-transform active:scale-95">
+                <SpringButton href="https://ig.me/m/tactus" variant="primary">
                   Order via DM
-                </a>
+                </SpringButton>
               </div>
             </motion.div>
 
             {/* TIER 2: PREMIUM AR */}
-            <motion.div variants={fadeInUp} className="flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] transition-all hover:bg-white/[0.04]">
-              <div className="relative aspect-[4/3] w-full bg-black/50">
-                <Image src="/products/premium-keychain.png" alt="TACTUS Premium AR" fill className="object-cover" />
+            <motion.div 
+               variants={fadeInUp} 
+               className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#1a1a1a] shadow-2xl transition-all hover:border-purple-500/30 hover:-translate-y-2"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+              <div className="relative aspect-[4/3] w-full bg-black">
+                <Image src="/products/premium-keychain.png" alt="TACTUS Premium AR" fill className="object-cover opacity-80 group-hover:opacity-100 transition-opacity group-hover:scale-105 duration-700" />
               </div>
-              <div className="flex flex-1 flex-col p-8">
+              <div className="flex flex-1 flex-col p-8 relative z-10">
                 <div className="mb-2 flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-white/90" style={{ fontFamily: "var(--font-display)" }}>AR COLLECTOR</h3>
-                  <span className="rounded-full bg-purple-500/20 px-3 py-1 text-sm font-semibold text-purple-400">₱199</span>
+                  <h3 className="text-3xl font-bold text-white/90" style={{ fontFamily: "var(--font-display)" }}>AR COLLECTOR</h3>
+                  <span className="text-2xl font-black text-white">₱199</span>
                 </div>
-                <p className="mb-6 text-sm text-white/50">Unlock immersive 3D AR experiences.</p>
-                <ul className="mb-8 flex-1 space-y-3 text-sm text-white/70">
-                  <li className="flex items-start gap-3">
-                    <span className="mt-0.5 text-purple-400">✓</span>
+                <p className="mb-8 text-sm text-white/50">Unlock immersive 3D AR experiences.</p>
+                <ul className="mb-10 flex-1 space-y-4 text-sm text-white/70">
+                  <li className="flex items-start gap-4">
+                     <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-purple-500/20 text-purple-400 text-[10px]">✓</span>
                     <span><strong>NFC Tap + AR Models</strong></span>
                   </li>
-                  <li className="flex items-start gap-3">
-                    <span className="mt-0.5 text-purple-400">✓</span>
-                    <span>Interactive 3D figures pop up on your phone</span>
+                  <li className="flex items-start gap-4">
+                     <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white/50 text-[10px]">✓</span>
+                    <span>Interactive 3D figures pop up on screen</span>
                   </li>
-                  <li className="flex items-start gap-3">
-                    <span className="mt-0.5 text-purple-400">✓</span>
+                  <li className="flex items-start gap-4">
+                     <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-white/50 text-[10px]">✓</span>
                     <span>Limited edition designs (Space Boi & Retro)</span>
                   </li>
                 </ul>
-                <a href="https://ig.me/m/tactus" target="_blank" rel="noopener noreferrer" className="w-full rounded-xl bg-white/10 py-3.5 text-center text-sm font-semibold text-white transition-colors hover:bg-white/20">
+                <SpringButton href="https://ig.me/m/tactus" variant="secondary">
                   Order via DM
-                </a>
+                </SpringButton>
               </div>
             </motion.div>
           </motion.div>
@@ -224,20 +292,17 @@ export default function HomePage() {
       </section>
 
       {/* ===== HOW IT WORKS ===== */}
-      <section className="relative px-6 py-24 bg-black/40">
+      <section id="how-it-works" className="relative px-6 py-32 bg-transparent">
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
-            className="mb-16 text-center"
+            className="mb-20 text-center"
           >
-            <motion.p variants={fadeInUp} className="mb-3 text-xs uppercase tracking-[0.3em] text-white/30">
-              The Magic
-            </motion.p>
-            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-wide text-white sm:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
-              No App Required
+            <motion.h2 variants={fadeInUp} className="text-4xl font-bold tracking-tight text-white sm:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
+              Invisible Tech.<br/>Visible Magic.
             </motion.h2>
           </motion.div>
 
@@ -246,30 +311,33 @@ export default function HomePage() {
             whileInView="visible"
             viewport={{ once: true, margin: "-50px" }}
             variants={staggerContainer}
-            className="grid gap-8 sm:grid-cols-3"
+            className="grid gap-12 sm:grid-cols-3 relative"
           >
+            {/* Connecting line for desktop */}
+            <div className="hidden sm:block absolute top-[45%] left-1/6 right-1/6 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-y-1/2 pointer-events-none" />
+
             {[
               {
-                step: "1",
-                title: "Get Your Keychain",
-                desc: "Choose from our Lite, Pro, or AR collections. Customize your Pro card with your favorite song."
+                step: "01",
+                title: "Get the Keychain",
+                desc: "Grab a pre-programmed track or message us for a custom song injection."
               },
               {
-                step: "2",
+                step: "02",
                 title: "Tap Your Phone",
-                desc: "Hold your phone near the keychain. The built-in NFC chip connects instantly without an app."
+                desc: "Hold any modern phone near the acrylic. The NFC chip inside connects instantly."
               },
               {
-                step: "3",
+                step: "03",
                 title: "Unlock the Vibe",
-                desc: "Your chosen Spotify song plays immediately, or watch as 3D AR characters come to life on your screen."
+                desc: "Spotify plays immediately, or watch as 3D AR characters pop out on your screen."
               }
             ].map((s, i) => (
-              <motion.div key={i} variants={fadeInUp} className="group flex flex-col items-center text-center">
-                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-[var(--color-tactus-border)] bg-white/[0.02] transition-all group-hover:border-[#FF6B35]/50 group-hover:bg-[#FF6B35]/10 group-hover:text-[#FF6B35]">
-                  <span className="text-2xl font-bold text-white/60 group-hover:text-[#FF6B35] transition-colors">{s.step}</span>
+              <motion.div key={i} variants={fadeInUp} className="group relative flex flex-col items-center text-center">
+                <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-full bg-black border border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.03)] z-10 transition-all duration-500 group-hover:scale-110 group-hover:border-[#FF6B35]/50 group-hover:shadow-[0_0_40px_rgba(255,107,53,0.2)]">
+                  <span className="text-2xl font-black text-white/50 group-hover:text-[#FF6B35] transition-colors duration-500">{s.step}</span>
                 </div>
-                <h3 className="mb-2 text-lg font-semibold text-white">{s.title}</h3>
+                <h3 className="mb-3 text-xl font-bold text-white/90">{s.title}</h3>
                 <p className="text-sm leading-relaxed text-white/40">{s.desc}</p>
               </motion.div>
             ))}
@@ -278,8 +346,7 @@ export default function HomePage() {
       </section>
 
       {/* ===== LIVE AR DEMO ===== */}
-      <section id="demo" className="relative px-6 py-24">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      <section id="demo" className="relative px-6 py-32 bg-transparent border-t border-white/5">
         <div className="mx-auto max-w-2xl">
           <motion.div
             initial="hidden"
@@ -288,8 +355,8 @@ export default function HomePage() {
             variants={staggerContainer}
             className="mb-12 text-center"
           >
-            <motion.p variants={fadeInUp} className="mb-3 text-xs uppercase tracking-[0.3em] text-white/30">Live Preview</motion.p>
-            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-wide text-white sm:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
+            <motion.p variants={fadeInUp} className="mb-3 text-xs uppercase tracking-[0.3em] text-[#FF6B35]">Live Preview</motion.p>
+            <motion.h2 variants={fadeInUp} className="text-3xl font-bold tracking-tight text-white sm:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
               Try the AR Experience
             </motion.h2>
             <motion.p variants={fadeInUp} className="mt-4 text-white/40">
@@ -307,7 +374,7 @@ export default function HomePage() {
             <motion.div variants={fadeInUp}>
               <Link
                 href="/ar/retro-player"
-                className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 transition-all duration-300 hover:border-purple-500/30 hover:bg-purple-500/10"
+                className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111] p-5 transition-all duration-300 hover:border-purple-500/30 hover:bg-purple-500/10 hover:-translate-y-1"
               >
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors">
                   <svg className="h-7 w-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
@@ -328,7 +395,7 @@ export default function HomePage() {
             <motion.div variants={fadeInUp}>
               <Link
                 href="/ar/space-boi"
-                className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 transition-all duration-300 hover:border-[#00D4FF]/30 hover:bg-[#00D4FF]/10"
+                className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111] p-5 transition-all duration-300 hover:border-[#00D4FF]/30 hover:bg-[#00D4FF]/10 hover:-translate-y-1"
               >
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#00D4FF]/10 group-hover:bg-[#00D4FF]/20 transition-colors">
                   <svg className="h-7 w-7 text-[#00D4FF]/80" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
@@ -349,51 +416,53 @@ export default function HomePage() {
       </section>
 
       {/* ===== FAQ ===== */}
-      <section className="relative px-6 py-24 bg-black/40">
+      <section id="faq" className="relative px-6 py-32 bg-black/50 border-t border-white/5">
         <div className="mx-auto max-w-3xl">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl font-bold tracking-wide text-white" style={{ fontFamily: "var(--font-display)" }}>
-              Frequently Asked Questions
+          <div className="mb-16 text-center">
+            <h2 className="text-4xl font-bold tracking-tight text-white mb-4" style={{ fontFamily: "var(--font-display)" }}>
+              Questions?
             </h2>
+            <p className="text-white/40">Everything you need to know about the phygital experience.</p>
           </div>
           
           <div className="space-y-4">
             {[
               {
                 q: "What is an NFC keychain?",
-                a: "NFC (Near Field Communication) allows your keychain to communicate with your smartphone. You just tap it against the back of your phone, and it automatically triggers an action—like opening a Spotify song or an AR experience—no batteries required!"
+                a: "NFC (Near Field Communication) allows your keychain to securely communicate with your smartphone. When holding them close, it triggers an instant action without batteries or charging. It's the same tech used in Apple Pay."
               },
               {
                 q: "Do I need to download an app?",
-                a: "No! Most modern smartphones (iPhone 11 & newer, and most Androids) have NFC enabled by default. TACTUS works straight out of the box using your phone's native features."
+                a: "No! Most modern smartphones (iPhone XS & newer, and most Androids) have NFC enabled by default. TACTUS works straight out of the box using your phone's native features."
               },
               {
-                q: "How do I customize my Pro keychain?",
-                a: "When you order the Pro tier via DM, you'll provide us with a link to your favorite Spotify song, and optionally a custom photo to print inside the acrylic. We program it for you before shipping."
+                q: "What if a phone doesn't have NFC?",
+                a: "For older budget phones without NFC, no worries! The visual design on the acrylic acts as a standard visual code. You can just open the Spotify app, tap the camera icon in search, and scan it."
               },
               {
                 q: "How do I order?",
-                a: "Currently, we accept orders directly through our Instagram / Facebook DMs. Just let us know which tier you want! We are setting up Shopee and TikTok shops very soon."
+                a: "Currently, we manage our limited stock directly through our Instagram or Facebook DMs. Just let us know which tier you want and if you want a custom track!"
               }
             ].map((faq, idx) => (
-              <div key={idx} className="overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02]">
+              <div key={idx} className="overflow-hidden rounded-2xl border border-white/5 bg-[#111] transition-colors hover:bg-white/[0.02]">
                 <button
                   onClick={() => toggleFaq(idx)}
-                  className="flex w-full items-center justify-between p-6 text-left"
+                  className="flex w-full items-center justify-between p-6 cursor-pointer"
                 >
-                  <span className="font-semibold text-white/90">{faq.q}</span>
-                  <svg 
-                    className={`h-5 w-5 text-white/40 transition-transform duration-300 ${activeFaq === idx ? "rotate-180" : ""}`} 
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
+                  <span className="font-semibold text-white/90 text-left">{faq.q}</span>
+                  <div className={`ml-4 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/5 transition-transform duration-300 ${activeFaq === idx ? "rotate-90 bg-[#FF6B35]/20 text-[#FF6B35]" : "text-white/40"}`}>
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
                 </button>
-                <div 
-                  className={`overflow-hidden transition-all duration-300 ease-in-out ${activeFaq === idx ? "max-h-48 opacity-100" : "max-h-0 opacity-0"}`}
+                <motion.div 
+                  initial={false}
+                  animate={{ height: activeFaq === idx ? "auto" : 0, opacity: activeFaq === idx ? 1 : 0 }}
+                  className="overflow-hidden"
                 >
-                  <p className="px-6 pb-6 text-sm text-white/50">{faq.a}</p>
-                </div>
+                  <p className="px-6 pb-6 pt-2 text-sm text-white/50 leading-relaxed border-t border-white/5 mx-6 mt-2">{faq.a}</p>
+                </motion.div>
               </div>
             ))}
           </div>
@@ -401,28 +470,41 @@ export default function HomePage() {
       </section>
 
       {/* ===== FOOTER ===== */}
-      <footer className="relative border-t border-white/[0.06] px-6 py-12 bg-tactus-black">
-        <div className="mx-auto flex max-w-6xl flex-col items-center gap-12">
-          <div className="flex flex-col items-center gap-6">
-            <h2 className="text-4xl font-black tracking-[0.2em] text-white" style={{ fontFamily: "var(--font-display)" }}>
+      <footer className="relative border-t border-white/10 px-6 py-20 bg-tactus-black overflow-hidden relative">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-32 bg-[#FF6B35]/10 blur-[100px] rounded-full pointer-events-none" />
+        
+        <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-12 z-10">
+          <div className="flex flex-col items-center gap-4">
+            <h2 className="text-5xl font-black tracking-[0.2em] text-white" style={{ fontFamily: "var(--font-display)" }}>
               TACTUS
             </h2>
             <p className="text-sm text-white/40 text-center max-w-sm">
-              Your music and memories, unlocked in a simple tap. Designed and assembled in the Philippines.
+              Your vibe, captured in acrylic. Phygital experiences designed and assembled in the Philippines.
             </p>
           </div>
 
-          <div className="flex gap-6">
-            {/* Social Icons mapped to standard DMs or handles */}
-            <a href="https://ig.me/m/tactus" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.02] text-white/60 hover:bg-[#FF6B35]/20 hover:text-[#FF6B35] transition-colors">
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
-            </a>
-            <a href="https://tiktok.com/@tactus" target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.02] text-white/60 hover:bg-white/20 hover:text-white transition-colors">
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" /></svg>
-            </a>
+          <div className="flex gap-4">
+            <motion.a 
+              href="https://ig.me/m/tactus" 
+              target="_blank" 
+              whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 107, 53, 0.2)" }}
+              whileTap={{ scale: 0.9 }}
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:text-[#FF6B35] transition-colors"
+            >
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
+            </motion.a>
+            <motion.a 
+              href="https://tiktok.com/@tactus" 
+              target="_blank" 
+              whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+              whileTap={{ scale: 0.9 }}
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:text-white transition-colors"
+            >
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" /></svg>
+            </motion.a>
           </div>
 
-          <p className="text-xs text-white/20">© 2026 TACTUS. All rights reserved.</p>
+          <p className="text-xs text-white/20 font-medium">© 2026 TACTUS. All rights reserved.</p>
         </div>
       </footer>
     </main>
