@@ -218,3 +218,261 @@ a-scene .a-loader-title,
 a-scene .a-enter-vr {
   display: none !important;
 }
+
+/* ===== Builder — Figma-like Floating UI ===== */
+
+/* Builder page overrides the dark global defaults */
+.builder-root,
+.builder-root * {
+  color-scheme: light;
+}
+
+/* Glassmorphism surface — used on floating panels */
+.builder-glass {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 4px 32px rgba(0, 0, 0, 0.06),
+    0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.builder-glass-strong {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(32px) saturate(1.6);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* Dot-grid canvas background — professional design-tool feel */
+.canvas-dotgrid {
+  background-color: #fafafa;
+  background-image: radial-gradient(circle, #d4d4d4 0.8px, transparent 0.8px);
+  background-size: 20px 20px;
+}
+
+/* Scrollbar — light theme variant for builder */
+.builder-root ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.builder-root ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.builder-root ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+}
+
+.builder-root ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+/* No-scrollbar utility */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Asset card hover lift */
+.asset-card {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s ease;
+}
+.asset-card:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Category pill tab */
+.category-pill {
+  transition: all 0.2s ease;
+}
+.category-pill:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+.category-pill.active {
+  background: rgba(236, 72, 153, 0.1);
+  color: #ec4899;
+}
+
+/* Floating panel entrance animation */
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.float-in {
+  animation: float-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Share button gradient */
+.share-gradient {
+  background: linear-gradient(135deg, #ec4899, #f43f5e);
+  transition: all 0.2s ease;
+}
+.share-gradient:hover {
+  background: linear-gradient(135deg, #db2777, #e11d48);
+  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.35);
+  transform: scale(1.03);
+}
+
+/* Layer row */
+.layer-row {
+  transition: all 0.15s ease;
+}
+.layer-row:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+.layer-row.selected {
+  background: rgba(236, 72, 153, 0.06);
+  border-left: 2px solid #ec4899;
+}
+
+/* Toolbar icon button */
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  transition: all 0.15s ease;
+  color: #525252;
+}
+.toolbar-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.06);
+  color: #171717;
+}
+.toolbar-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+.toolbar-btn.danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+/* Divider */
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 0 4px;
+}
+
+/* ===== Slideshow Animations ===== */
+
+@keyframes slideshow-progress {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0%); }
+}
+
+.slideshow-progress-fill {
+  animation-name: slideshow-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes slideshow-kb-1 {
+  from { transform: scale(1) translate(0%, 0%); }
+  to   { transform: scale(1.18) translate(-2%, -1.5%); }
+}
+@keyframes slideshow-kb-2 {
+  from { transform: scale(1) translate(0%, 0%); }
+  to   { transform: scale(1.18) translate(2%, -1.5%); }
+}
+@keyframes slideshow-kb-3 {
+  from { transform: scale(1) translate(0%, 0%); }
+  to   { transform: scale(1.18) translate(-2%, 1.5%); }
+}
+@keyframes slideshow-kb-4 {
+  from { transform: scale(1) translate(0%, 0%); }
+  to   { transform: scale(1.18) translate(2%, 1.5%); }
+}
+
+.slideshow-kb-1 { animation: slideshow-kb-1 linear forwards; }
+.slideshow-kb-2 { animation: slideshow-kb-2 linear forwards; }
+.slideshow-kb-3 { animation: slideshow-kb-3 linear forwards; }
+.slideshow-kb-4 { animation: slideshow-kb-4 linear forwards; }
+
+.slideshow-paused .slideshow-kb-1,
+.slideshow-paused .slideshow-kb-2,
+.slideshow-paused .slideshow-kb-3,
+.slideshow-paused .slideshow-kb-4,
+.slideshow-paused .slideshow-progress-fill {
+  animation-play-state: paused;
+}
+
+/* Slideshow pages lock scroll */
+body:has(.slideshow-root) {
+  overflow: hidden;
+  height: 100dvh;
+}
+
+/* Ambient: floating hearts for love template */
+@keyframes heart-drift {
+  0%   { transform: translate3d(0, 20px, 0) scale(0.9); opacity: 0; }
+  15%  { opacity: 0.6; }
+  100% { transform: translate3d(var(--heart-drift-x, 0), -120vh, 0) scale(1.1); opacity: 0; }
+}
+
+.heart-particle {
+  animation: heart-drift linear infinite;
+  will-change: transform, opacity;
+}
+
+/* Ambient: confetti for birthday template */
+@keyframes confetti-fall {
+  0%   { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translate3d(var(--confetti-drift-x, 0), 110vh, 0) rotate(720deg); opacity: 0.8; }
+}
+
+.confetti-particle {
+  animation: confetti-fall linear infinite;
+  will-change: transform, opacity;
+}
+
+/* ===== Slideshow Outro Mosaic ===== */
+
+.slideshow-mosaic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: min(85vw, 360px);
+  padding: 12px;
+  transform: rotate(-2deg);
+}
+
+.slideshow-mosaic-item {
+  aspect-ratio: 3/4;
+  width: 100%;
+}
+
+/* 2 images: 2 columns */
+.slideshow-mosaic-grid[style*="--mosaic-count: 2"] {
+  grid-template-columns: repeat(2, 1fr);
+  width: min(65vw, 280px);
+}
+
+/* 1 image: single centered */
+.slideshow-mosaic-grid[style*="--mosaic-count: 1"] {
+  grid-template-columns: 1fr;
+  width: min(50vw, 200px);
+}

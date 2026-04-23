@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect } from "react";
+import { AR_EXPERIENCES } from "@/lib/arExperiences";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
@@ -83,7 +84,7 @@ export default function HomePage() {
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
           </nav>
           <motion.a
-            href="https://ig.me/m/tactus"
+            href="https://www.instagram.com/hellotactus/"
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-full bg-white px-5 py-2 text-xs font-bold uppercase tracking-wider text-black transition-colors hover:bg-white/90"
@@ -187,6 +188,106 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ===== HOW IT WORKS ===== */}
+      <section className="relative px-6 py-32 bg-black border-t border-white/5 overflow-hidden">
+        {/* Ambient background glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#FF6B35]/5 blur-[120px] rounded-full pointer-events-none" />
+        
+        <div className="relative mx-auto max-w-4xl z-10">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={staggerContainer}
+            className="mb-20 text-center"
+          >
+            <motion.h2 variants={fadeInUp} className="text-4xl md:text-6xl font-black tracking-tight text-white leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+              Your music.<br />
+              <span className="text-[#FF6B35]">Unlocked in a tap.</span>
+            </motion.h2>
+          </motion.div>
+
+          <div className="relative mx-auto max-w-2xl">
+            {/* Connecting line */}
+            <div className="absolute left-[27px] md:left-1/2 top-8 bottom-8 w-[2px] bg-white/10 md:-translate-x-1/2" />
+
+            <div className="flex flex-col gap-12">
+              {/* Step 1 */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.7 }}
+                className="relative flex items-center gap-6 md:justify-center"
+              >
+                <div className="md:w-1/2 md:text-right md:pr-12 hidden md:block">
+                  <div className="relative h-full min-h-[160px] w-full rounded-2xl overflow-hidden border border-white/10 shadow-xl">
+                    <Image src="/products/basic-keychain-1.jpg" alt="Get the Keychain" fill className="object-cover" />
+                  </div>
+                </div>
+                <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#111] border-4 border-[#FF6B35] text-xl font-bold text-white shadow-[0_0_20px_rgba(255,107,53,0.3)]">
+                  1
+                </div>
+                <div className="md:w-1/2 md:pl-12">
+                  <div className="rounded-2xl bg-white/5 border border-white/10 p-6 backdrop-blur-sm transition-colors hover:bg-white/10 hover:border-white/20">
+                    <h3 className="text-xl font-bold text-white">Get the Keychain</h3>
+                    <p className="mt-2 text-sm text-white/50">Choose your favorite song, artist, or playlist. We craft it into a premium acrylic keychain with an embedded invisible NFC chip.</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Step 2 */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="relative flex items-center gap-6 md:justify-center md:flex-row-reverse"
+              >
+                <div className="md:w-1/2 md:pl-12 hidden md:block">
+                  <div className="relative h-full min-h-[160px] w-full rounded-2xl overflow-hidden border border-white/10 shadow-xl">
+                    <Image src="/products/basic-keychain-2.jpg" alt="Tap with Your Phone" fill className="object-cover" />
+                  </div>
+                </div>
+                <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#111] border-4 border-[#FF6B35] text-xl font-bold text-white shadow-[0_0_20px_rgba(255,107,53,0.3)]">
+                  2
+                </div>
+                <div className="md:w-1/2 md:pr-12 md:text-right">
+                  <div className="rounded-2xl bg-white/5 border border-white/10 p-6 backdrop-blur-sm transition-colors hover:bg-white/10 hover:border-white/20">
+                    <h3 className="text-xl font-bold text-white">Tap with Your Phone</h3>
+                    <p className="mt-2 text-sm text-white/50">Simply bring your smartphone close to the keychain. No app required, works instantly on iOS and Android.</p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Step 3 */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                className="relative flex items-center gap-6 md:justify-center"
+              >
+                <div className="md:w-1/2 md:text-right md:pr-12 hidden md:block">
+                  <div className="relative h-full min-h-[160px] w-full rounded-2xl overflow-hidden border border-[#FF6B35]/30 shadow-[0_0_20px_rgba(255,107,53,0.15)]">
+                    <Image src="/products/pro-keychain.png" alt="Unlock the Vibe" fill className="object-cover" />
+                  </div>
+                </div>
+                <div className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#111] border-4 border-[#FF6B35] text-xl font-bold text-white shadow-[0_0_20px_rgba(255,107,53,0.3)]">
+                  3
+                </div>
+                <div className="md:w-1/2 md:pl-12">
+                  <div className="rounded-2xl bg-[#FF6B35]/10 border border-[#FF6B35]/30 p-6 backdrop-blur-sm shadow-[0_0_30px_rgba(255,107,53,0.1)] transition-colors hover:bg-[#FF6B35]/20">
+                    <h3 className="text-xl font-bold text-white">Unlock the Vibe</h3>
+                    <p className="mt-2 text-sm text-white/70">Instantly launch your music, custom augmented reality experiences, or private slideshows.</p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ===== PRODUCT TIERS (SHOP) ===== */}
       <section id="shop" className="relative px-6 py-32 bg-black/50 border-y border-white/5">
         <div className="mx-auto max-w-5xl">
@@ -246,7 +347,7 @@ export default function HomePage() {
                     <span>Holographic premium packaging</span>
                   </li>
                 </ul>
-                <SpringButton href="https://ig.me/m/tactus" variant="primary">
+                <SpringButton href="https://www.instagram.com/hellotactus/" variant="primary">
                   Order via DM
                 </SpringButton>
               </div>
@@ -282,7 +383,7 @@ export default function HomePage() {
                     <span>Limited edition designs (Space Boi & Retro)</span>
                   </li>
                 </ul>
-                <SpringButton href="https://ig.me/m/tactus" variant="secondary">
+                <SpringButton href="https://www.instagram.com/hellotactus/" variant="secondary">
                   Order via DM
                 </SpringButton>
               </div>
@@ -291,59 +392,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ===== HOW IT WORKS ===== */}
-      <section id="how-it-works" className="relative px-6 py-32 bg-transparent">
-        <div className="mx-auto max-w-4xl">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="mb-20 text-center"
-          >
-            <motion.h2 variants={fadeInUp} className="text-4xl font-bold tracking-tight text-white sm:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
-              Invisible Tech.<br/>Visible Magic.
-            </motion.h2>
-          </motion.div>
 
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={staggerContainer}
-            className="grid gap-12 sm:grid-cols-3 relative"
-          >
-            {/* Connecting line for desktop */}
-            <div className="hidden sm:block absolute top-[45%] left-1/6 right-1/6 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-y-1/2 pointer-events-none" />
-
-            {[
-              {
-                step: "01",
-                title: "Get the Keychain",
-                desc: "Grab a pre-programmed track or message us for a custom song injection."
-              },
-              {
-                step: "02",
-                title: "Tap Your Phone",
-                desc: "Hold any modern phone near the acrylic. The NFC chip inside connects instantly."
-              },
-              {
-                step: "03",
-                title: "Unlock the Vibe",
-                desc: "Spotify plays immediately, or watch as 3D AR characters pop out on your screen."
-              }
-            ].map((s, i) => (
-              <motion.div key={i} variants={fadeInUp} className="group relative flex flex-col items-center text-center">
-                <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-full bg-black border border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.03)] z-10 transition-all duration-500 group-hover:scale-110 group-hover:border-[#FF6B35]/50 group-hover:shadow-[0_0_40px_rgba(255,107,53,0.2)]">
-                  <span className="text-2xl font-black text-white/50 group-hover:text-[#FF6B35] transition-colors duration-500">{s.step}</span>
-                </div>
-                <h3 className="mb-3 text-xl font-bold text-white/90">{s.title}</h3>
-                <p className="text-sm leading-relaxed text-white/40">{s.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
       {/* ===== LIVE AR DEMO ===== */}
       <section id="demo" className="relative px-6 py-32 bg-transparent border-t border-white/5">
@@ -371,46 +420,45 @@ export default function HomePage() {
             variants={staggerContainer}
             className="flex flex-col gap-4"
           >
-            <motion.div variants={fadeInUp}>
-              <Link
-                href="/ar/retro-player"
-                className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111] p-5 transition-all duration-300 hover:border-purple-500/30 hover:bg-purple-500/10 hover:-translate-y-1"
-              >
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors">
-                  <svg className="h-7 w-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+            {AR_EXPERIENCES.map((exp) => (
+              <motion.div key={exp.slug} variants={fadeInUp}>
+                <Link
+                  href={`/ar/${exp.slug}`}
+                  className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111] p-5 transition-all duration-300 hover:bg-white/[0.03] hover:-translate-y-1"
+                  style={{ ["--accent" as string]: exp.accentColor }}
+                >
+                  <div
+                    className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl transition-colors"
+                    style={{ backgroundColor: `${exp.accentColor}1a` }}
+                  >
+                    <svg
+                      className="h-7 w-7"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      style={{ color: exp.accentColor }}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-white">{exp.title} AR</h3>
+                    <p className="text-sm text-white/40">{exp.listing.description}</p>
+                  </div>
+                  <svg
+                    className="h-5 w-5 text-white/20 transition-transform group-hover:translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-white">AR Retro Player</h3>
-                  <p className="text-sm text-white/40">Launch Kuromi AR Demo</p>
-                </div>
-                <svg className="h-5 w-5 text-white/20 transition-transform group-hover:translate-x-1 group-hover:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-            </motion.div>
-
-            <motion.div variants={fadeInUp}>
-              <Link
-                href="/ar/space-boi"
-                className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.06] bg-[#111] p-5 transition-all duration-300 hover:border-[#00D4FF]/30 hover:bg-[#00D4FF]/10 hover:-translate-y-1"
-              >
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#00D4FF]/10 group-hover:bg-[#00D4FF]/20 transition-colors">
-                  <svg className="h-7 w-7 text-[#00D4FF]/80" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-white">AR Space Boi</h3>
-                  <p className="text-sm text-white/40">Launch Space Boi Demo</p>
-                </div>
-                <svg className="h-5 w-5 text-white/20 transition-transform group-hover:translate-x-1 group-hover:text-[#00D4FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-            </motion.div>
+                </Link>
+              </motion.div>
+            ))}
           </motion.div>
         </div>
       </section>
@@ -483,25 +531,49 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="flex gap-4">
-            <motion.a 
-              href="https://ig.me/m/tactus" 
-              target="_blank" 
-              whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 107, 53, 0.2)" }}
-              whileTap={{ scale: 0.9 }}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:text-[#FF6B35] transition-colors"
+          <div className="flex flex-col items-center gap-8">
+            <a 
+              href="mailto:hellotactus@gmail.com" 
+              className="flex items-center gap-3 text-white/70 hover:text-white transition-colors"
             >
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
-            </motion.a>
-            <motion.a 
-              href="https://tiktok.com/@tactus" 
-              target="_blank" 
-              whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
-              whileTap={{ scale: 0.9 }}
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:text-white transition-colors"
-            >
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" /></svg>
-            </motion.a>
+              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M2 5.5A2.5 2.5 0 014.5 3h15A2.5 2.5 0 0122 5.5v13a2.5 2.5 0 01-2.5 2.5h-15A2.5 2.5 0 012 18.5v-13zM4.5 5a.5.5 0 00-.5.5v.465l7.636 5.345a1 1 0 001.146 0L20 5.965V5.5a.5.5 0 00-.5-.5h-15zm15.5 2.4l-7.25 5.075a2 2 0 01-2.293 0L3 7.4v11.1a.5.5 0 00.5.5h15a.5.5 0 00.5-.5V7.4z"/>
+              </svg>
+              <span className="text-xl font-medium tracking-wide">hellotactus@gmail.com</span>
+            </a>
+
+            <div className="flex gap-4">
+              <motion.a 
+                href="https://www.facebook.com/share/1H68VmrE9K/?mibextid=wwXIfr" 
+                target="_blank" 
+                whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 107, 53, 0.2)" }}
+                whileTap={{ scale: 0.9 }}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:text-[#FF6B35] transition-colors"
+                aria-label="Facebook"
+              >
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              </motion.a>
+              <motion.a 
+                href="https://www.instagram.com/hellotactus" 
+                target="_blank" 
+                whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 107, 53, 0.2)" }}
+                whileTap={{ scale: 0.9 }}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:text-[#FF6B35] transition-colors"
+                aria-label="Instagram"
+              >
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
+              </motion.a>
+              <motion.a 
+                href="https://www.tiktok.com/@hellotactus" 
+                target="_blank" 
+                whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 107, 53, 0.2)" }}
+                whileTap={{ scale: 0.9 }}
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/60 hover:text-[#FF6B35] transition-colors"
+                aria-label="TikTok"
+              >
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" /></svg>
+              </motion.a>
+            </div>
           </div>
 
           <p className="text-xs text-white/20 font-medium">© 2026 TACTUS. All rights reserved.</p>
