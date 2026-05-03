@@ -5,6 +5,7 @@ import { TEMPLATES } from "@/lib/templates";
 import { CustomerForm } from "../../CustomerForm";
 import { ImageManager } from "../../ImageManager";
 import { DeleteCustomerButton } from "../../DeleteCustomerButton";
+import { QRSection } from "../../QRSection";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +63,10 @@ export default async function EditCustomerPage({
           images={images}
           limit={customer.image_limit}
         />
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+        <QRSection slug={customer.slug} />
       </section>
 
       <section className="rounded-2xl border border-rose-500/20 bg-rose-500/[0.03] p-6 sm:p-8">
