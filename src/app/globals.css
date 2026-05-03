@@ -390,26 +390,26 @@ a-scene .a-enter-vr {
 }
 
 @keyframes slideshow-kb-1 {
-  from { transform: scale(1) translate(0%, 0%); }
-  to   { transform: scale(1.18) translate(-2%, -1.5%); }
+  from { transform: scale(1.05) translate(3%, 2%); }
+  to   { transform: scale(1.28) translate(-4%, -3%); }
 }
 @keyframes slideshow-kb-2 {
-  from { transform: scale(1) translate(0%, 0%); }
-  to   { transform: scale(1.18) translate(2%, -1.5%); }
+  from { transform: scale(1.28) translate(-4%, -2%); }
+  to   { transform: scale(1.05) translate(4%, 3%); }
 }
 @keyframes slideshow-kb-3 {
-  from { transform: scale(1) translate(0%, 0%); }
-  to   { transform: scale(1.18) translate(-2%, 1.5%); }
+  from { transform: scale(1.05) translate(-3%, -2%); }
+  to   { transform: scale(1.3) translate(3%, 4%); }
 }
 @keyframes slideshow-kb-4 {
-  from { transform: scale(1) translate(0%, 0%); }
-  to   { transform: scale(1.18) translate(2%, 1.5%); }
+  from { transform: scale(1.3) translate(2%, 3%); }
+  to   { transform: scale(1.05) translate(-4%, -3%); }
 }
 
-.slideshow-kb-1 { animation: slideshow-kb-1 linear forwards; }
-.slideshow-kb-2 { animation: slideshow-kb-2 linear forwards; }
-.slideshow-kb-3 { animation: slideshow-kb-3 linear forwards; }
-.slideshow-kb-4 { animation: slideshow-kb-4 linear forwards; }
+.slideshow-kb-1 { animation: slideshow-kb-1 ease-in-out forwards; }
+.slideshow-kb-2 { animation: slideshow-kb-2 ease-in-out forwards; }
+.slideshow-kb-3 { animation: slideshow-kb-3 ease-in-out forwards; }
+.slideshow-kb-4 { animation: slideshow-kb-4 ease-in-out forwards; }
 
 .slideshow-paused .slideshow-kb-1,
 .slideshow-paused .slideshow-kb-2,
