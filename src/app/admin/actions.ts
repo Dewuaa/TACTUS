@@ -12,6 +12,7 @@ import {
   getCustomerBySlug,
 } from "@/lib/db/customers";
 import { getTemplate } from "@/lib/templates";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 
 const SLUG_RE = /^[a-z0-9-]+$/;
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
@@ -227,6 +228,21 @@ export async function uploadMusicAction(
   } catch (e) {
     return { error: errMsg(e) };
   }
+}
+
+export async function reorderImagesAction(slug: string, orderedIds: string[]) {
+  try {
+    for (let i = 0; i < orderedIds.length; i++) {
+      await supabaseAdmin
+        .from("customer_images")
+        .update({ order_index: i })
+        .eq("id", orderedIds[i]);
+    }
+  } catch (e) {
+    return { error: errMsg(e) };
+  }
+  revalidatePath(`/admin/${slug}/edit`);
+  revalidatePath(`/p/${slug}`);
 }
 
 export async function searchSpotifyAction(query: string) {

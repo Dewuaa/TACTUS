@@ -11,7 +11,9 @@
       "PowerShell(cmd /c \"dir C:\\\\Users\\\\PC\\\\Downloads\")",
       "WebSearch",
       "WebFetch(domain:developer.spotify.com)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }

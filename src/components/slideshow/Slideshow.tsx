@@ -555,14 +555,30 @@ export function Slideshow({ images, title, message, musicUrl, theme, ambient, in
               </motion.p>
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 0.5 }}
                 className="mt-3 flex flex-col items-center gap-3">
-                <button type="button" onClick={replay}
-                  className="inline-flex items-center gap-2 rounded-full border px-6 py-2.5 text-[11px] uppercase tracking-[0.3em] text-white transition hover:scale-105 active:scale-95 backdrop-blur-md"
-                  style={{ borderColor: `${theme.accent}55`, background: `${theme.accent}22` }}>
-                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v6h6M20 20v-6h-6M4 10a8 8 0 0 1 14-4l2 2M20 14a8 8 0 0 1-14 4l-2-2" />
-                  </svg>
-                  Replay
-                </button>
+                <div className="flex gap-3">
+                  <button type="button" onClick={replay}
+                    className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-[11px] uppercase tracking-[0.3em] text-white transition hover:scale-105 active:scale-95 backdrop-blur-md"
+                    style={{ borderColor: `${theme.accent}55`, background: `${theme.accent}22` }}>
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v6h6M20 20v-6h-6M4 10a8 8 0 0 1 14-4l2 2M20 14a8 8 0 0 1-14 4l-2-2" />
+                    </svg>
+                    Replay
+                  </button>
+                  <button type="button"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({ title: `A memory for ${title}`, url: window.location.href }).catch(() => {});
+                      } else {
+                        navigator.clipboard?.writeText(window.location.href).then(() => {}).catch(() => {});
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-5 py-2.5 text-[11px] uppercase tracking-[0.3em] text-white transition hover:scale-105 active:scale-95 backdrop-blur-md">
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    Share
+                  </button>
+                </div>
                 <p className="text-[9px] text-white/20 tracking-widest uppercase">tactus.ph</p>
               </motion.div>
             </div>
