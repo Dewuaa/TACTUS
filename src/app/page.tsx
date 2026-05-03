@@ -563,7 +563,7 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <MagneticBtn href="/demo/slideshow" variant="ghost">
+              <MagneticBtn href="/p/dasdasd" variant="ghost">
                 Preview a demo →
               </MagneticBtn>
             </motion.div>

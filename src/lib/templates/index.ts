@@ -4,6 +4,7 @@ import { BirthdayTemplate } from "./birthday";
 import { LoveTemplate } from "./love";
 import { FriendshipTemplate } from "./friendship";
 import { AnniversaryTemplate } from "./anniversary";
+import { GraduationTemplate } from "./graduation";
 
 export type TemplateProps = {
   customer: Customer;
@@ -41,6 +42,12 @@ export const TEMPLATES: Template[] = [
     name: "Anniversary",
     description: "Warm gold & candlelight. Elegant and timeless.",
     component: AnniversaryTemplate,
+  },
+  {
+    id: "graduation",
+    name: "Graduation",
+    description: "Deep navy & gold. Academic, proud, triumphant.",
+    component: GraduationTemplate,
   },
 ];
 
