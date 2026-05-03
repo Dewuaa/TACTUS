@@ -229,25 +229,33 @@ export function SpotifyPicker({ slug, defaultValue }: Props) {
       {/* ── Upload MP3 tab ── */}
       {tab === "upload" && (
         <div className="space-y-2">
-          {uploadError && <p className="text-[11px] text-rose-400">{uploadError}</p>}
-          {uploadDone && previewUrl && (
-            <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] px-4 py-3">
-              <div className="flex-1">
-                <p className="text-[11px] text-emerald-400">Uploaded ✓</p>
-                <p className="text-[10px] text-white/30 truncate">{previewUrl}</p>
-              </div>
-              <PlayBtn url={previewUrl} />
+          {!slug ? (
+            <div className="rounded-xl border border-white/10 bg-white/[0.02] px-4 py-5 text-center">
+              <p className="text-[12px] text-white/50">Create the customer first, then upload music from the edit page.</p>
             </div>
+          ) : (
+            <>
+              {uploadError && <p className="text-[11px] text-rose-400">{uploadError}</p>}
+              {uploadDone && previewUrl && (
+                <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] px-4 py-3">
+                  <div className="flex-1">
+                    <p className="text-[11px] text-emerald-400">Uploaded ✓</p>
+                    <p className="text-[10px] text-white/30 truncate">{previewUrl}</p>
+                  </div>
+                  <PlayBtn url={previewUrl} />
+                </div>
+              )}
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-3">
+                <input ref={fileInputRef} type="file" name="music-upload"
+                  accept="audio/mpeg,audio/mp4,audio/m4a,audio/ogg,audio/wav,.mp3,.m4a,.ogg,.wav"
+                  disabled={isUploading}
+                  onChange={handleFileChange}
+                  className="flex-1 text-sm text-white/70 file:mr-3 file:rounded-full file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-[11px] file:font-medium file:uppercase file:tracking-[0.2em] file:text-white hover:file:bg-white/20 disabled:opacity-40" />
+                {isUploading && <div className="tactus-spinner shrink-0" style={{ width: 18, height: 18 }} />}
+              </div>
+              <p className="text-[11px] text-white/30">Max 12MB. MP3, M4A, OGG, WAV. Auto-saves on select.</p>
+            </>
           )}
-          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-3">
-            <input ref={fileInputRef} type="file" name="music-upload"
-              accept="audio/mpeg,audio/mp4,audio/m4a,audio/ogg,audio/wav,.mp3,.m4a,.ogg,.wav"
-              disabled={isUploading || !slug}
-              onChange={handleFileChange}
-              className="flex-1 text-sm text-white/70 file:mr-3 file:rounded-full file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-[11px] file:font-medium file:uppercase file:tracking-[0.2em] file:text-white hover:file:bg-white/20 disabled:opacity-40" />
-            {isUploading && <div className="tactus-spinner shrink-0" style={{ width: 18, height: 18 }} />}
-          </div>
-          <p className="text-[11px] text-white/30">Max 12MB. MP3, M4A, OGG, WAV. Auto-saves on select.</p>
         </div>
       )}
     </div>

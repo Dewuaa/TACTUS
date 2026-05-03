@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState, useRef, useState, useTransition, useCallback } from "react";
+import { useActionState, useRef, useState, useTransition, useCallback, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import type { CustomerImage } from "@/lib/db/types";
 import {
@@ -20,9 +20,15 @@ function UploadButton({ disabled }: { disabled: boolean }) {
     <button
       type="submit"
       disabled={pending || disabled}
-      className="rounded-full bg-white px-5 py-2 text-[11px] font-medium uppercase tracking-[0.3em] text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40"
+      className="relative rounded-full bg-white px-5 py-2 text-[11px] font-medium uppercase tracking-[0.3em] text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-40 overflow-hidden"
     >
-      {pending ? "Uploading..." : "Upload"}
+      {pending && (
+        <span className="absolute inset-0 flex items-center justify-center gap-2 bg-white">
+          <span className="h-3 w-3 rounded-full border-2 border-black/20 border-t-black animate-spin" />
+          Uploading…
+        </span>
+      )}
+      <span className={pending ? "invisible" : ""}>Upload</span>
     </button>
   );
 }
@@ -32,6 +38,11 @@ function CaptionInput({ img, slug }: { img: CustomerImage; slug: string }) {
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync if the img prop caption changes (e.g. after server revalidation)
+  useEffect(() => {
+    setValue(img.caption ?? "");
+  }, [img.caption]);
 
   const save = (caption: string) => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -66,22 +77,41 @@ export function ImageManager({ slug, images, limit }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const action = addImagesAction.bind(null, slug);
   const [state, formAction] = useActionState(action, initial);
+
+  // Keep local items in sync with server — update when images prop changes
+  // (after upload or delete triggers revalidatePath, Next re-renders with new images)
   const [items, setItems] = useState<CustomerImage[]>(images);
+  useEffect(() => { setItems(images); }, [images]);
+
   const [isReordering, startReorder] = useTransition();
   const dragIdx = useRef<number | null>(null);
   const dragOverIdx = useRef<number | null>(null);
+  const [dragActive, setDragActive] = useState<number | null>(null);
 
   const remaining = limit - items.length;
   const full = remaining <= 0;
 
-  const onDragStart = useCallback((i: number) => { dragIdx.current = i; }, []);
+  // Clear file input after successful upload
+  useEffect(() => {
+    if (state?.ok && fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [state]);
+
+  const onDragStart = useCallback((i: number) => {
+    dragIdx.current = i;
+    setDragActive(i);
+  }, []);
+
   const onDragOver = useCallback((e: React.DragEvent, i: number) => {
     e.preventDefault();
     dragOverIdx.current = i;
   }, []);
+
   const onDrop = useCallback(() => {
     const from = dragIdx.current;
     const to = dragOverIdx.current;
+    setDragActive(null);
     if (from === null || to === null || from === to) return;
     const next = [...items];
     const [moved] = next.splice(from, 1);
@@ -90,9 +120,14 @@ export function ImageManager({ slug, images, limit }: Props) {
     dragIdx.current = null;
     dragOverIdx.current = null;
     startReorder(async () => {
-      await reorderImagesAction(slug, next.map((i) => i.id));
+      await reorderImagesAction(slug, next.map((img) => img.id));
     });
   }, [items, slug]);
+
+  const onDragEnd = useCallback(() => {
+    setDragActive(null);
+    dragIdx.current = null;
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -101,7 +136,12 @@ export function ImageManager({ slug, images, limit }: Props) {
           Images
         </h2>
         <div className="flex items-center gap-3">
-          {isReordering && <span className="text-[10px] text-white/30 uppercase tracking-widest">Saving order…</span>}
+          {isReordering && (
+            <span className="flex items-center gap-1.5 text-[10px] text-white/30 uppercase tracking-widest">
+              <span className="h-2.5 w-2.5 rounded-full border border-white/20 border-t-white/60 animate-spin" />
+              Saving…
+            </span>
+          )}
           <span className="text-[11px] uppercase tracking-[0.25em] text-white/40">{items.length} / {limit}</span>
         </div>
       </div>
@@ -123,14 +163,18 @@ export function ImageManager({ slug, images, limit }: Props) {
                 onDragStart={() => onDragStart(i)}
                 onDragOver={(e) => onDragOver(e, i)}
                 onDrop={onDrop}
-                className="group relative overflow-hidden rounded-xl border border-white/10 bg-black cursor-grab active:cursor-grabbing"
+                onDragEnd={onDragEnd}
+                className={`group relative overflow-hidden rounded-xl border bg-black cursor-grab active:cursor-grabbing transition-all duration-200 ${
+                  dragActive === i
+                    ? "border-white/30 scale-95 opacity-50"
+                    : "border-white/10"
+                }`}
               >
                 <div className="relative aspect-square w-full">
                   <Image
                     src={img.url} alt={`Image ${i + 1}`} fill
                     className="object-cover" sizes="(max-width: 640px) 50vw, 33vw" unoptimized
                   />
-                  {/* Drag handle + order badge */}
                   <div className="absolute top-2 left-2 flex items-center gap-1.5">
                     <div className="rounded-full bg-black/60 px-2 py-0.5 text-[10px] text-white/60 backdrop-blur-sm">#{i + 1}</div>
                     <div className="rounded-full bg-black/60 p-1 backdrop-blur-sm text-white/40">
