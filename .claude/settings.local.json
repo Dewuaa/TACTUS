@@ -8,7 +8,10 @@
       "PowerShell(head -50)",
       "PowerShell(Get-ChildItem \"c:\\\\Users\\\\PC\\\\Desktop\\\\tactus-splash-ar\\\\public\" -Recurse -Force | ForEach-Object { $_.FullName })",
       "PowerShell(Get-ChildItem \"C:\\\\Users\\\\PC\\\\Downloads\" | Where-Object { $_.Extension -in \".jfif\",\".jpg\",\".jpeg\",\".png\" } | Select-Object Name, LastWriteTime | Sort-Object LastWriteTime -Descending | Select-Object -First 20)",
-      "PowerShell(cmd /c \"dir C:\\\\Users\\\\PC\\\\Downloads\")"
+      "PowerShell(cmd /c \"dir C:\\\\Users\\\\PC\\\\Downloads\")",
+      "WebSearch",
+      "WebFetch(domain:developer.spotify.com)",
+      "Bash(git add *)"
     ]
   }
 }

@@ -8,6 +8,7 @@ import {
   deleteCustomerBySlug,
   uploadCustomerImage,
   deleteCustomerImage,
+  updateImageCaption,
   getCustomerBySlug,
 } from "@/lib/db/customers";
 import { getTemplate } from "@/lib/templates";
@@ -176,12 +177,74 @@ export async function addImagesAction(
   return { ok: true };
 }
 
+export async function updateCaptionAction(
+  slug: string,
+  imageId: string,
+  caption: string | null,
+) {
+  if (!imageId) return;
+  await updateImageCaption(imageId, caption);
+  revalidatePath(`/admin/${slug}/edit`);
+  revalidatePath(`/p/${slug}`);
+}
+
 export async function deleteImageAction(slug: string, imageId: string) {
   if (!imageId) return;
   await deleteCustomerImage(imageId);
   revalidatePath(`/admin/${slug}/edit`);
   revalidatePath(`/admin`);
   revalidatePath(`/p/${slug}`);
+}
+
+export async function uploadMusicAction(
+  slug: string,
+  _prev: ActionState,
+  formData: FormData,
+): Promise<ActionState & { url?: string }> {
+  try {
+    const file = formData.get("music") as File | null;
+    if (!file || file.size === 0) return { error: "No file selected." };
+    if (file.size > 12 * 1024 * 1024) return { error: "File exceeds 12MB." };
+    const allowed = ["audio/mpeg", "audio/mp4", "audio/m4a", "audio/ogg", "audio/wav", "audio/aac", "audio/x-m4a"];
+    if (file.type && !allowed.includes(file.type)) return { error: "Only MP3/M4A/OGG/WAV files allowed." };
+
+    const { supabaseAdmin, STORAGE_BUCKET } = await import("@/lib/supabase/admin");
+    const ext = (file.name.split(".").pop() || "mp3").toLowerCase();
+    const path = `${slug}/music-${Date.now()}.${ext}`;
+    const buf = await file.arrayBuffer();
+    const { error: upErr } = await supabaseAdmin.storage
+      .from(STORAGE_BUCKET)
+      .upload(path, buf, { contentType: file.type || "audio/mpeg", upsert: true });
+    if (upErr) throw upErr;
+
+    const { supabasePublic } = await import("@/lib/supabase/public");
+    const url = supabasePublic.storage.from(STORAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+
+    await updateCustomerBySlug(slug, { music_url: url });
+    revalidatePath(`/admin/${slug}/edit`);
+    revalidatePath(`/p/${slug}`);
+    return { ok: true, url };
+  } catch (e) {
+    return { error: errMsg(e) };
+  }
+}
+
+export async function searchSpotifyAction(query: string) {
+  const { searchSpotifyTracks } = await import("@/lib/spotify");
+  try {
+    return await searchSpotifyTracks(query);
+  } catch {
+    return [];
+  }
+}
+
+export async function resolveSpotifyAction(input: string) {
+  const { resolveSpotifyTrack } = await import("@/lib/spotify");
+  try {
+    return { track: await resolveSpotifyTrack(input), error: null };
+  } catch (e) {
+    return { track: null, error: errMsg(e) };
+  }
 }
 
 export async function deleteCustomerAction(slug: string) {

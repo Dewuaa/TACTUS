@@ -9,6 +9,7 @@ import {
   updateCustomerAction,
   type ActionState,
 } from "./actions";
+import { SpotifyPicker } from "./SpotifyPicker";
 
 const initial: ActionState = {};
 
@@ -74,7 +75,7 @@ export function CustomerForm({ mode, templates, customer }: Props) {
         <input
           type="text"
           name="slug"
-          pattern="[a-z0-9-]+"
+          pattern="[a-z0-9\-]+"
           maxLength={64}
           defaultValue={customer?.slug ?? ""}
           disabled={mode === "edit"}
@@ -108,17 +109,8 @@ export function CustomerForm({ mode, templates, customer }: Props) {
         />
       </Field>
 
-      <Field
-        label="Music URL"
-        hint="Direct link to an .mp3 / .m4a file. Optional."
-      >
-        <input
-          type="url"
-          name="music_url"
-          defaultValue={customer?.music_url ?? ""}
-          placeholder="https://..."
-          className="input"
-        />
+      <Field label="Music" hint="Spotify, direct URL, or upload MP3. Optional.">
+        <SpotifyPicker slug={customer?.slug} defaultValue={customer?.music_url} />
       </Field>
 
       <Field label="Image limit" hint="How many photos this customer can have.">

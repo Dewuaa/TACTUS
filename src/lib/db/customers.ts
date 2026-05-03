@@ -149,6 +149,17 @@ export async function uploadCustomerImage(
   return { ...(data as Omit<CustomerImage, "url">), url: publicUrl(path) };
 }
 
+export async function updateImageCaption(
+  imageId: string,
+  caption: string | null,
+): Promise<void> {
+  const { error } = await supabaseAdmin
+    .from("customer_images")
+    .update({ caption })
+    .eq("id", imageId);
+  if (error) throw error;
+}
+
 export async function deleteCustomerImage(imageId: string): Promise<void> {
   const { data: img } = await supabaseAdmin
     .from("customer_images")
